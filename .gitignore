@@ -1,2 +1,4 @@
-./.vscode
-./data
+.vscode/*
+data/*
+logs/*
+code/config/config.cfg
