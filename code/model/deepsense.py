@@ -105,3 +105,4 @@ class DeepSense:
 
             q_values = self.dense_layer(output, self.num_actions, Q_VALUES, reuse)
             return q_values
+        

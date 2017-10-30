@@ -23,3 +23,11 @@ GRU_NUM_CELLS = "GRU_NULL_CELLS"
 
 ##FullyConnected Layer Parameters
 DENSE_LAYER_SIZES = "DENSE_LAYER_SIZES"
+
+#configuration section names
+CONVOLUTION = "convolution"
+DATASET = "dataset"
+DENSE = "dense"
+DROPOUT = "dropout"
+GRU = "gru"
+LOGGING = "logging"

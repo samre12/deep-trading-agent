@@ -1,2 +1,23 @@
 [logging]
-log_file = ./log.txt
+log_file = log.txt
+
+[dataset]
+NUM_ACTIONS = 3
+SPLIT_SIZE = 10
+WINDOW_SIZE = 10
+
+[dropout]
+CONV_KEEP_PROB = 0.5
+DENSE_KEEP_PROB = 0.5
+GRU_KEEP_PROB = 0.5
+
+[convolution]
+FILTER_SIZES = [10, 20]
+KERNEL_SIZES = [5, 3]
+
+[gru]
+GRU_CELL_SIZE = 512
+GRU_NUM_CELLS = 2
+
+[dense]
+DENSE_LAYER_SIZES = [512, 256, 128]

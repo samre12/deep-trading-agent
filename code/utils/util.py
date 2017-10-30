@@ -1,4 +1,4 @@
-from configparser import ConfigParser
+from ConfigParser import ConfigParser
 import logging
 
 from constants import *
