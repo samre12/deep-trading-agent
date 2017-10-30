@@ -1,2 +1,25 @@
+#Logging
 LOGGING = "logging"
 LOG_FILE = "log_file"
+
+#DeepSense Parameters
+##Dataset Parameters
+NUM_ACTIONS = "NUM_ACTIONS"
+SPLIT_SIZE = "SPLIT_SIZE"
+WINDOW_SIZE = "WINDOW_SIZE"
+
+##Dropout Layer Parameters
+CONV_KEEP_PROB = "CONV_KEEP_PROB"
+DENSE_KEEP_PROB = "DENSE_KEEP_PROB"
+GRU_KEEP_PROB = "GRU_KEEP_PROB"
+
+## Convolution Layer Parameters
+FILTER_SIZES = "FILTER_SIZES"
+KERNEL_SIZES = "KERNEL_SIZES"
+
+## GRU Parameters
+GRU_CELL_SIZE = "GRU_CELL_SIZE"
+GRU_NUM_CELLS = "GRU_NULL_CELLS"
+
+##FullyConnected Layer Parameters
+DENSE_LAYER_SIZES = "DENSE_LAYER_SIZES"

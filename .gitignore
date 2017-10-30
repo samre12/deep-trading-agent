@@ -2,3 +2,6 @@
 data/*
 logs/*
 code/config/config.cfg
+*.DS_Store
+*.pyc
+*.swp
