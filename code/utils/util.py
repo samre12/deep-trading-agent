@@ -9,7 +9,7 @@ def get_config_parser(filename):
     return config
 
 def get_logger(config):
-    logger = logging.FileHandler(config.get(LOGGING, LOG_FILE))
+    logger = logging.FileHandler(config[LOG_FILE])
     return logger
 
 def print_and_log_message(message, logger):

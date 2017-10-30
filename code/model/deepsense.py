@@ -9,7 +9,7 @@ from model.deepsenseparameters import DeepSenseParams
 class DeepSense:
     '''DeepSense Architecture for Q function approximation over Timeseries'''
 
-    def __init__(deepsenseparams, logger):
+    def __init__(self, deepsenseparams, logger):
         self.params = deepsenseparams
         self.logger = logger
 
@@ -53,11 +53,11 @@ class DeepSense:
                         ]
                     )
 
-    def build_model(self, inputs, train=True, reuse=False, name="DeepSense"):
+    def build_model(self, inputs, train=True, reuse=False, name=DEEPSENSE):
         self.batch_size = inputs.get_shape().as_list()[0]
         self.channels = inputs.get_shape().as_list()[-1]
 
-        with tf.varialbe_scope("DeepSense", reuse=reuse):
+        with tf.varialbe_scope(DEEPSENSE, reuse=reuse):
             inputs = tf.reshape(inputs, shape=[batch_size, split_size, window_size, channels])
 
             num_convs = len(self.params.filter_sizes)
@@ -104,5 +104,4 @@ class DeepSense:
                 output = self.dense_layer(output, size, name, reuse, tf.nn.relu)
 
             q_values = self.dense_layer(output, self.num_actions, Q_VALUES, reuse)
-            return q_values
-        
+            tf.add_to_collection(Q_VALUES, q_values)

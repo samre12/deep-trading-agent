@@ -1,6 +1,7 @@
 #Logging
-LOGGING = "logging"
 LOG_FILE = "log_file"
+SAVE_DIR = "SAVE_DIR"
+TENSORBOARD_LOG_DIR = "TENSORBOARD_LOG_DIR"
 
 #DeepSense Parameters
 ##Dataset Parameters

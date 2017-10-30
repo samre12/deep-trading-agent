@@ -1,5 +1,6 @@
 [logging]
 log_file = log.txt
+TENSORBOARD_LOG_DIR = 
 
 [dataset]
 NUM_ACTIONS = 3
