@@ -12,6 +12,7 @@ def get_config(config_parser):
 
     #Dataset Parameters
     config[NUM_ACTIONS] = int(config_parser.get(DATASET, NUM_ACTIONS))
+    config[NUM_CHANNELS] = int(config_parser.get(DATASET, NUM_CHANNELS))
     config[SPLIT_SIZE] = int(config_parser.get(DATASET, SPLIT_SIZE))
     config[WINDOW_SIZE] = int(config_parser.get(DATASET, WINDOW_SIZE))
 

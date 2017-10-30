@@ -1,9 +1,11 @@
 [logging]
 log_file = log.txt
+SAVE_DIR = 
 TENSORBOARD_LOG_DIR = 
 
 [dataset]
 NUM_ACTIONS = 3
+NUM_CHANNELS = 5
 SPLIT_SIZE = 10
 WINDOW_SIZE = 10
 

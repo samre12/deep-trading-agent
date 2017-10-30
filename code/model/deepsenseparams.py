@@ -3,9 +3,10 @@ from utils.constants import *
 class DeepSenseParams:
     '''Defines the parameters for the DeepSense Q Network Architecture'''
 
-    def __init__(config):
+    def __init__(self, config):
         #Timeseries Parameters
         self.num_actions = config[NUM_ACTIONS]
+        self.num_channels = config[NUM_CHANNELS]
         self.split_size = config[SPLIT_SIZE]
         self.window_size = config[WINDOW_SIZE]
 
@@ -16,7 +17,7 @@ class DeepSenseParams:
 
         #Convolution Layer Parameters
         self.filter_sizes = config[FILTER_SIZES]
-        self.kernel_sizes = config[STRIDE_SIZES]
+        self.kernel_sizes = config[KERNEL_SIZES]
 
         #GRU Parameters
         self.gru_cell_size = config[GRU_CELL_SIZE]
