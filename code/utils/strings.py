@@ -1,4 +1,6 @@
 #strings
+DEEP_TRADING_AGENT = "deep_trading_agent"
+
 BATCH_NORM_ = "batch_norm_{}"
 CONV_LAYERS = "conv_layers"
 CONV_ = "conv_{}"

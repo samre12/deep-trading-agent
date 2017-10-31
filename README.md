@@ -19,4 +19,4 @@ For exact details of the implementation and the network architecture, refer to t
 Implementation is adapted from [this](https://github.com/yscacaca/DeepSense) Github repository with a few simplifications in the network architecture to incorporate learning over a single time series of the Bitcoin data.
 
 ### Deep Q Trading
-Implementation is adapted from this [Medium post](https://hackernoon.com/the-self-learning-quant-d3329fcc9915).
+Implementation is inspired from this [Medium post](https://hackernoon.com/the-self-learning-quant-d3329fcc9915). The actual implementation of the Deep Q Network is adapted from [DQN-tensorflow](https://github.com/devsisters/DQN-tensorflow).

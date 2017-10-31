@@ -11,7 +11,6 @@ from argparse import ArgumentParser
 
 from model.deepsense import DeepSense
 from model.deepsenseparams import DeepSenseParams
-from model.util import load_pre_trained_model
 
 from utils.config import get_config
 from utils.constants import *
@@ -24,28 +23,21 @@ def main(config_file_path):
     logger = get_logger(config)
 
     with tf.Session() as sess:
-        latest_checkpoint = tf.train.latest_checkpoint(config[SAVE_DIR])
-        if latest_checkpoint is not None:
-            '''This will load a pretrained model into the current session graph'''
-            message = 'Found lateset checkpoint at : {}'.format(latestcheckpoint)
-            print_and_log_message(message, logger)
+        with tf.variable_scope(INPUT):
+            inp = tf.placeholder(dtype=tf.float32, shape=[None, 100, 5])
+        
+        deepsense = DeepSense(DeepSenseParams(config), logger, sess)
+        deepsense.build_model(inp)
 
-            load_pre_trained_model(sess, latestcheckpoint, logger) 
+        # variables_list1 = tf.get_collection(key=tf.GraphKeys.GLOBAL_VARIABLES, scope=DEEPSENSE)
 
-        else:
-            with tf.variable_scope(INPUT):
-                inp = tf.placeholder(dtype=tf.float32, shape=[None, 100, 5])
-            
-            deepsense = DeepSense(DeepSenseParams(config), logger)
-            deepsense.build_model(inp)
+        # deepsense2 = DeepSense(DeepSenseParams(config), logger, sess, name='deep')
+        # deepsense2.build_model(inp)
 
-        q_values = tf.get_collection(Q_VALUES)[0]
+        # variables_list2 = tf.get_collection(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='deep')
         
         summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])
         summary_writer.add_graph(sess.graph)
-
-        saver = tf.train.Saver(pad_step_number=True)
-
         summary_writer.close()
 
 
