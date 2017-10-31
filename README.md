@@ -10,9 +10,11 @@ Current Deep Q-Trading model is modified by using the *Deep Sense* architecture 
 Per minute price for Bitcoin in USD (*Bitstamp*) from 2012-1-1 to 2017-5-31 is available on Kaggle at this [link](https://www.kaggle.com/mczielinski/bitcoin-historical-data/data).
 
 ### Preprocessing
+*To be done*
 
 ## Implementation
 Tensorflow "1.1.0" version is used for the implementation of the **Deep Sense** network.
+For exact details of the implementation and the network architecture, refer to the Wiki of this repository.
 ### Deep Sense
 Implementation is adapted from [this](https://github.com/yscacaca/DeepSense) Github repository with a few simplifications in the network architecture to incorporate learning over a single time series of the Bitcoin data.
 
