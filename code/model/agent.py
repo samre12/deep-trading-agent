@@ -54,7 +54,7 @@ class Agent(BaseAgent):
         max_avg_ep_reward = 0
         ep_rewards, actions = [], []
 
-        screen, reward, action, terminal = self.env.new_random_episode(self.history)
+        self.env.new_random_episode(self.history)
 
         for self.step in range(start_step, self.max_step):
             if self.step == self.learn_start:
@@ -65,12 +65,12 @@ class Agent(BaseAgent):
             # 1. predict
             action = self.predict(self.history.get())
             # 2. act
-            screen, reward, terminal = self.env.act(action, training=True)
+            screen, reward, terminal = self.env.act(action)
             # 3. observe
             self.observe(screen, reward, action, terminal)
 
             if terminal:
-                screen, reward, action, terminal = self.env.new_random_episode(self.history)
+                self.env.new_random_episode(self.history)
                 num_episodes += 1
                 ep_rewards.append(ep_reward)
                 ep_reward = 0.
