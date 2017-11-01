@@ -11,6 +11,9 @@ def get_config(config_parser):
     config[TENSORBOARD_LOG_DIR] = config_parser.get(LOGGING, TENSORBOARD_LOG_DIR)
 
     #Dataset Parameters
+    config[BATCH_SIZE] = int(config_parser.get(DATASET, BATCH_SIZE))
+    config[HISTORY_LENGTH] = int(config_parser.get(DATASET, HISTORY_LENGTH))
+    config[MEMORY_SIZE] = int(config_parser.get(DATASET, MEMORY_SIZE))
     config[NUM_ACTIONS] = int(config_parser.get(DATASET, NUM_ACTIONS))
     config[NUM_CHANNELS] = int(config_parser.get(DATASET, NUM_CHANNELS))
     config[SPLIT_SIZE] = int(config_parser.get(DATASET, SPLIT_SIZE))

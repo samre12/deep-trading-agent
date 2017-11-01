@@ -1,5 +1,17 @@
 #strings
+ACTIONS = "actions"
 DEEP_TRADING_AGENT = "deep_trading_agent"
+POSTSTATES = "poststates"
+PRESTATES = "prestates"
+REPLAY_MEMORY = "replay_memory"
+REWARDS = "rewards"
+SCREENS = "screens"
+STEP = "step"
+STEPS = "steps"
+STEP_INPUT = "step_input"
+Q_NETWORK = "q_network"
+TERMINALS = "terminals"
+T_Q_NETWORK = "t_q_network"
 
 BATCH_NORM_ = "batch_norm_{}"
 CONV_LAYERS = "conv_layers"
@@ -22,3 +34,5 @@ WEIGHTS_LOADER = "weights_loader"
 #Log Messages
 MODEL_WEIGHTS_NOT_LOADED = "MODEL_WEIGHTS_NOT_LOADED"
 PRE_TRAINED_MODEL_NOT_LOADED = "PRE_TRAINED_MODEL_NOT_LOADED"
+REPLAY_MEMORY_ZERO = "REPLAY_MEMORY_ZERO"
+REPLAY_MEMORY_INSUFFICIENT = "REPLAY_MEMORY_INSUFFICIENT"

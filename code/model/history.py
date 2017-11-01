@@ -2,25 +2,23 @@
 
 import numpy as np
 
+from utils.constants import *
+
 class History:
-  def __init__(self, config):
-    self.cnn_format = config.cnn_format
+    def __init__(self, config):
+        batch_size, history_length, channels = \
+            config[BATCH_SIZE], config[HISTORY_LENGTH], config[NUM_CHANNELS]
 
-    batch_size, history_length, screen_height, screen_width = \
-        config.batch_size, config.history_length, config.screen_height, config.screen_width
+        self._history = np.zeros(
+            [history_length, channels], dtype=np.float32)
+    
+    @property
+    def history(self):
+        return self._history
 
-    self.history = np.zeros(
-        [history_length, screen_height, screen_width], dtype=np.float32)
+    def add(self, current_price):
+        self._history[:-1] = self._history[1:]
+        self._history[-1] = current_price
 
-  def add(self, screen):
-    self.history[:-1] = self.history[1:]
-    self.history[-1] = screen
-
-  def reset(self):
-    self.history *= 0
-
-  def get(self):
-    if self.cnn_format == 'NHWC':
-      return np.transpose(self.history, (1, 2, 0))
-    else:
-      return self.history
+    def reset(self):
+        self._history *= 0
