@@ -11,14 +11,26 @@ from model.deepsenseparams import DeepSenseParams
 class DeepSense:
     '''DeepSense Architecture for Q function approximation over Timeseries'''
 
-    def __init__(self, deepsenseparams, logger, sess, name=DEEPSENSE):
+    def __init__(self, deepsenseparams, logger, sess, config, name=DEEPSENSE):
         self.params = deepsenseparams
         self.logger = logger
         self.sess = sess
         self.__name__ = name
 
+        self._model_dir = join(config[SAVE_DIR], self.__name__)
+        if not os.path.exists(self._model_dir):
+            os.makedirs(self._model_dir)
+
         self._saver = None
         self._weights = None
+
+    @property
+    def action(self):
+        return self._action
+        
+    @property
+    def model_dir(self):
+        return self._model_dir
 
     @property
     def name(self):
@@ -29,6 +41,10 @@ class DeepSense:
         if self._saver == None:
             self._saver = tf.train.Saver(max_to_keep=30)
         return self._saver
+
+    @property
+    def values(self):
+        return self._values
 
     @property
     def weights(self):
@@ -90,34 +106,28 @@ class DeepSense:
                         name=name
                     )        
 
-    def save_model(self, checkpoint_dir, step=None):
-        save_dir = join(checkpoint_dir, self.__name__)
-    
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        
-        save_path = join(save_dir, self.__name__)
+    def save_model(self, step=None):
+        save_path = join(self._model_dir, self.__name__)
         message_list = ["Saving model to {}".format(save_path)]
         save_path = self._saver.save(self.sess, save_path, global_step=step)
     
         message_list.append("Model saved to {}".format(save_path))
         print_and_log_message_list(message_list, self.logger)
 
-    def load_model(self, checkpoint_dir):
-        save_dir = join(checkpoint_dir, self.__name__)
-        message_list = ["Loading checkpoints from {}".format(save_dir)]
+    def load_model(self):
+        message_list = ["Loading checkpoints from {}".format(self._model_dir)]
         
-        ckpt = tf.train.get_checkpoint_state(save_dir)
+        ckpt = tf.train.get_checkpoint_state(self._model_dir)
         if ckpt and ckpt.model_checkpoint_path:
             ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
-            fname = join(save_dir, ckpt_name)
+            fname = join(self._model_dir, ckpt_name)
             self._saver.restore(self.sess, fname)
             message_list.append("Model successfully loaded from {}".format(fname))
             print_and_log_message_list(message_list, self.logger)
             return True
 
         else:
-            message_list.append("Model could not be loaded from {}".format(save_dir))
+            message_list.append("Model could not be loaded from {}".format(self._model_dir))
             print_and_log_message_list(message_list, self.logger)
             return False
 
@@ -186,7 +196,6 @@ class DeepSense:
                                                         self.params.dense_keep_prob,
                                                         DROPOUT_DENSE_.format(i + 1))
 
-            q_values = self.dense_layer(output, self.params.num_actions, Q_VALUES, reuse)
-            tf.add_to_collection(Q_VALUES, q_values)
-
-            return self.saver
+            self._values = self.dense_layer(output, self.params.num_actions, Q_VALUES, reuse)
+            self._action = tf.arg_max(self._values, dimension=1, name=ACTION)
+            self._saver = tf.train.Saver(max_to_keep=30)

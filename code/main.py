@@ -9,8 +9,8 @@ import numpy as np
 
 from argparse import ArgumentParser
 
-from model.deepsense import DeepSense
-from model.deepsenseparams import DeepSenseParams
+from model.agent import Agent
+from model.environment import Environment
 
 from utils.config import get_config
 from utils.constants import *
@@ -23,18 +23,8 @@ def main(config_file_path):
     logger = get_logger(config)
 
     with tf.Session() as sess:
-        with tf.variable_scope(INPUT):
-            inp = tf.placeholder(dtype=tf.float32, shape=[None, 100, 5])
-        
-        deepsense = DeepSense(DeepSenseParams(config), logger, sess)
-        deepsense.build_model(inp)
-
-        # variables_list1 = tf.get_collection(key=tf.GraphKeys.GLOBAL_VARIABLES, scope=DEEPSENSE)
-
-        # deepsense2 = DeepSense(DeepSenseParams(config), logger, sess, name='deep')
-        # deepsense2.build_model(inp)
-
-        # variables_list2 = tf.get_collection(key=tf.GraphKeys.GLOBAL_VARIABLES, scope='deep')
+        env = Environment(logger, config)
+        agent = Agent(sess, logger, config, env)
         
         summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])
         summary_writer.add_graph(sess.graph)
