@@ -2,6 +2,7 @@ import json
 from ConfigParser import ConfigParser
 
 from utils.constants import *
+from utils.strings import *
 
 def get_config(config_parser):
     config = {}
@@ -12,7 +13,9 @@ def get_config(config_parser):
 
     #Dataset Parameters
     config[BATCH_SIZE] = int(config_parser.get(DATASET, BATCH_SIZE))
+    config[DATASET_PATH] = config_parser.get(DATASET, DATASET_PATH)
     config[HISTORY_LENGTH] = int(config_parser.get(DATASET, HISTORY_LENGTH))
+    config[HORIZON] = int(config_parser.get(DATASET, HORIZON))
     config[MEMORY_SIZE] = int(config_parser.get(DATASET, MEMORY_SIZE))
     config[NUM_ACTIONS] = int(config_parser.get(DATASET, NUM_ACTIONS))
     config[NUM_CHANNELS] = int(config_parser.get(DATASET, NUM_CHANNELS))
@@ -34,5 +37,8 @@ def get_config(config_parser):
 
     #FullyConnected Layer Parameters
     config[DENSE_LAYER_SIZES] = json.loads(config_parser.get(DENSE, DENSE_LAYER_SIZES))
+
+    if (config[SPLIT_SIZE] * config[WINDOW_SIZE] != config[HISTORY_LENGTH]):
+        raise ValueError(DIMENSION_MISMATCH_HISTORY_LENGTH)
 
     return config

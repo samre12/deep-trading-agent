@@ -1,4 +1,5 @@
 # Deep Trading Agent
+*(Implementation in Progress)*<br>
 Deep Reinforcement Learning based Trading Agent for Bitcoin using [DeepSense](https://arxiv.org/abs/1611.01942) Network for Q function approximation. <br>
 
 ## Trading Model
@@ -12,7 +13,13 @@ A more cleaner (but less in volume) dataset in USD (*Coinbase*) is available on 
 *Dates for which data is available get updated frequently. These are the values at the time of writing.*
 
 ### Preprocessing
-*To be done*
+**Basic Preprocessing**<br>
+Completely ignore missing values and remove them from the dataset and accumulate blocks of continuous values using the timestamps of the prices.<br>
+All the accumulated blocks with number of timestamps lesser than the combined *history length* of the state and *horizon* of the agent are then filtered out since they cannot be used for training of the agent.<br>
+
+**Advanced Preprocessing**<br>
+Process missing values and concatenate smaller blocks to increase the sizes of continuous price blocks<br>
+*(To be implemented)*
 
 ## Implementation
 Tensorflow "1.1.0" version is used for the implementation of the **Deep Sense** network.<br>
@@ -21,4 +28,4 @@ For exact details of the implementation and the network architecture, refer to t
 Implementation is adapted from [this](https://github.com/yscacaca/DeepSense) Github repository with a few simplifications in the network architecture to incorporate learning over a single time series of the Bitcoin data.
 
 ### Deep Q Trading
-Implementation is inspired from this [Medium post](https://hackernoon.com/the-self-learning-quant-d3329fcc9915). The actual implementation of the Deep Q Network is adapted from [DQN-tensorflow](https://github.com/devsisters/DQN-tensorflow).
+Implementation and preprocessing is inspired from this [Medium post](https://hackernoon.com/the-self-learning-quant-d3329fcc9915). The actual implementation of the Deep Q Network is adapted from [DQN-tensorflow](https://github.com/devsisters/DQN-tensorflow).

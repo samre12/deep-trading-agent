@@ -6,8 +6,9 @@ from progressbar import ProgressBar, Bar, Counter, Timer, \
 
 import tensorflow as tf
 import numpy as np
-
 from argparse import ArgumentParser
+
+from preprocess.preprocessor import Preprocessor
 
 from model.agent import Agent
 from model.environment import Environment
@@ -23,7 +24,8 @@ def main(config_file_path):
     logger = get_logger(config)
 
     with tf.Session() as sess:
-        env = Environment(logger, config)
+        preprocessor = Preprocessor(config, logger)
+        env = Environment(logger, config, preprocessor.price_blocks)
         agent = Agent(sess, logger, config, env)
         
         summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])

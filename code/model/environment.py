@@ -7,13 +7,13 @@ from utils.strings import *
 class Environment:
     '''Exchange Simulator for Bitcoin based upon per minute historical prices'''
 
-    def __init__(self, logger, config):
+    def __init__(self, logger, config, price_blocks):
         self.logger = logger
         self.action_size = 3
         self.history_length = config[HISTORY_LENGTH]
         self.horizon = config[HORIZON]
 
-        self.historical_prices = None #fill this field with the historical data
+        self.price_blocks = price_blocks
 
         self.action_dict = {
             0: NEUTRAL,
@@ -25,7 +25,10 @@ class Environment:
         self.liquid, self.borrow, self.long, self.short = 0., 0., 0, 0
         self.timesteps = 0
         
-        self.current = random.randint(self.history_length, 
+        block_index = random.randint(0, len(self.price_blocks) - 1)
+        self.historical_prices = self.price_blocks[block_index]
+
+        self.current = random.randint(self.history_length,  
                                         len(self.historical_prices) - self.horizon)
         history.set_history(self.historical_prices[self.current - self.history_length:self.current])
         
@@ -37,7 +40,7 @@ class Environment:
             self.long = self.long + 1
             self.borrow = self.borrow + price
             
-        else if self.action_dict[action] is SHORT:
+        elif self.action_dict[action] is SHORT:
             self.short = self.short + 1
             self.liquid = self.liquid + price
         
