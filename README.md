@@ -5,6 +5,16 @@
 [![dep3](https://img.shields.io/badge/status-in%20progress-green.svg)](https://github.com/samre12/deep-trading-agent/)<br>
 Deep Reinforcement Learning based Trading Agent for Bitcoin using [DeepSense](https://arxiv.org/abs/1611.01942) Network for Q function approximation. <br><br>
 ![model](assets/schema/CompleteSchema.png)
+<br>
+For complete details of the network architecture and implementation, refer to the [Wiki](https://github.com/samre12/deep-trading-agent/wiki) of this repository.
+
+## Requirements
+- Python 2.7
+- [Tensorflow](https://www.tensorflow.org/)
+- [TA-Lib](https://mrjbq7.github.io/ta-lib/) (for processing Bitcoin Price Series)
+- [Pandas](https://pandas.pydata.org) (for processing Bitcoin Price Series)<br>
+
+To setup a ubuntu virtual machine with all the dependencies to run the code, refer to `assets/vm`.
 
 ## Trading Model
 is inspired by [Deep Q-Trading](http://cslt.riit.tsinghua.edu.cn/mediawiki/images/5/5f/Dtq.pdf) where they solve a simplified trading problem for a single asset. <br>
@@ -27,7 +37,6 @@ Process missing values and concatenate smaller blocks to increase the sizes of c
 
 ## Implementation
 Tensorflow "1.1.0" version is used for the implementation of the **Deep Sense** network.<br>
-For exact details of the implementation and the network architecture, refer to the Wiki of this repository.
 ### Deep Sense
 Implementation is adapted from [this](https://github.com/yscacaca/DeepSense) Github repository with a few simplifications in the network architecture to incorporate learning over a single time series of the Bitcoin data.
 
