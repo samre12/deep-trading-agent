@@ -11,9 +11,12 @@ def get_config(config_parser):
     config[SAVE_DIR] = config_parser.get(LOGGING, SAVE_DIR)
     config[TENSORBOARD_LOG_DIR] = config_parser.get(LOGGING, TENSORBOARD_LOG_DIR)
 
+    #Preprocessing Dataset
+    config[TRANSACTIONS_FILE] = config_parser.get(PREPROCESSING, TRANSACTIONS_FILE)
+    config[DATASET_PATH] = config_parser.get(PREPROCESSING, DATASET_PATH)
+
     #Dataset Parameters
     config[BATCH_SIZE] = int(config_parser.get(DATASET, BATCH_SIZE))
-    config[DATASET_PATH] = config_parser.get(DATASET, DATASET_PATH)
     config[HISTORY_LENGTH] = int(config_parser.get(DATASET, HISTORY_LENGTH))
     config[HORIZON] = int(config_parser.get(DATASET, HORIZON))
     config[MEMORY_SIZE] = int(config_parser.get(DATASET, MEMORY_SIZE))

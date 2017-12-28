@@ -6,7 +6,7 @@ from utils.constants import *
 from utils.strings import *
 from utils.util import print_and_log_message, print_and_log_message_list
 
-class Preprocessor:
+class Processor:
     '''Preprocessor for Bitcoin prices dataset as obtained from 
     https://www.kaggle.com/mczielinski/bitcoin-historical-data/data'''
 
@@ -37,22 +37,25 @@ class Preprocessor:
         print_and_log_message(message, self.logger)
         
         self._data_blocks = []
+        distinct_episodes = 0
         for name, indices in blocks.indices.items():
             if len(indices) > (self.history_length + self.horizon):
                 self._data_blocks.append(blocks.get_group(name))
+                distinct_episodes = distinct_episodes + (len(indices) - (self.history_length + self.horizon) + 1)
 
         data = None
-        message = 'Number of usable blocks obtained from the dataset are {}'.format(len(self._data_blocks))
-        print_and_log_message(message, self.logger)
+        message_list = ['Number of usable blocks obtained from the dataset are {}'.format(len(self._data_blocks))]
+        message_list.append('Number of distinct episodes for the current configuration are {}'.format(distinct_episodes))
+        print_and_log_message_list(message_list, self.logger)
 
     def generate_attributes(self):
         self._price_blocks = []
         for data_block in self._data_blocks:
-            weighted_prices = data_block['Weighted_Price'].values
+            weighted_prices = data_block['price_close'].values
             diff = np.diff(weighted_prices)
             diff = np.insert(diff, 0, 0)
-            sma15 = SMA(data_block, timeperiod=15, price='Weighted_Price')
-            sma30 = SMA(data_block, timeperiod=30, price='Weighted_Price')        
+            sma15 = SMA(data_block, timeperiod=15, price='price_close')
+            sma30 = SMA(data_block, timeperiod=30, price='price_close')        
             
             price_block = np.column_stack((weighted_prices, diff, sma15, 
                                             weighted_prices - sma15, sma15 - sma30))

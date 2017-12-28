@@ -6,13 +6,13 @@
 Deep Reinforcement Learning based Trading Agent for Bitcoin using [DeepSense](https://arxiv.org/abs/1611.01942) Network for Q function approximation. <br><br>
 ![model](assets/schema/CompleteSchema.png)
 <br>
-For complete details of the network architecture and implementation, refer to the [Wiki](https://github.com/samre12/deep-trading-agent/wiki) of this repository.
+For complete details of the dataset, preprocessing, network architecture and implementation, refer to the [Wiki](https://github.com/samre12/deep-trading-agent/wiki) of this repository.
 
 ## Requirements
 - Python 2.7
 - [Tensorflow](https://www.tensorflow.org/)
 - [TA-Lib](https://mrjbq7.github.io/ta-lib/) (for processing Bitcoin Price Series)
-- [Pandas](https://pandas.pydata.org) (for processing Bitcoin Price Series)<br>
+- [Pandas](https://pandas.pydata.org) (for pre-processing Bitcoin Price Series)<br>
 
 To setup a ubuntu virtual machine with all the dependencies to run the code, refer to `assets/vm`.
 
@@ -22,14 +22,20 @@ For each trading unit, only one of the three actions: neutral(1), long(2) and sh
 Current Deep Q-Trading model is modified by using the *Deep Sense* architecture for *Q function* approximation.
 
 ## Dataset
-Per minute price for Bitcoin in USD (*Bitstamp*) from 2012-1-1 to 2017-5-31 is available on Kaggle at this [link](https://www.kaggle.com/mczielinski/bitcoin-historical-data/data). However, this dataset has many missing values.<br>
-A more cleaner (but less in volume) dataset in USD (*Coinbase*) is available on the same link from 20114-12-1 to 2017-10-20. <br>
-*Dates for which data is available get updated frequently. These are the values at the time of writing.*
+Per minute Bitcoin series is obtained by modifying the procedure mentioned in [this](https://github.com/philipperemy/deep-learning-bitcoin) repository. Transactions in the *Coinbase* exchange are sampled to generate the Bitcoin price series. <br>
+Refer to `assets/dataset` to download the dataset.
 
 ### Preprocessing
 **Basic Preprocessing**<br>
 Completely ignore missing values and remove them from the dataset and accumulate blocks of continuous values using the timestamps of the prices.<br>
 All the accumulated blocks with number of timestamps lesser than the combined *history length* of the state and *horizon* of the agent are then filtered out since they cannot be used for training of the agent.<br>
+In the current implementation, past 3 hours (180 minutes) of per minute Bitcoin prices are used to generate the representation of the current state of the agent.<br>
+With the existing dataset (at the time of writing), following are the logs generated while preprocessing the dataset:
+```
+INFO:root:Number of blocks of continuous prices found are 58863
+INFO:root:Number of usable blocks obtained from the dataset are 887
+INFO:root:Number of distinct episodes for the current configuration are 558471
+```
 
 **Advanced Preprocessing**<br>
 Process missing values and concatenate smaller blocks to increase the sizes of continuous price blocks<br>

@@ -1,14 +1,11 @@
 import time
 from os.path import join
 
-from progressbar import ProgressBar, Bar, Counter, Timer, \
-            RotatingMarker, Percentage
-
 import tensorflow as tf
 import numpy as np
 from argparse import ArgumentParser
 
-from preprocess.preprocessor import Preprocessor
+from process.processor import Processor
 
 from model.agent import Agent
 from model.environment import Environment
@@ -24,8 +21,8 @@ def main(config_file_path):
     logger = get_logger(config)
 
     with tf.Session() as sess:
-        preprocessor = Preprocessor(config, logger)
-        env = Environment(logger, config, preprocessor.price_blocks)
+        processor = Processor(config, logger)
+        env = Environment(logger, config, processor.price_blocks)
         agent = Agent(sess, logger, config, env)
         
         summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])
