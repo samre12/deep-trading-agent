@@ -12,7 +12,8 @@ For complete details of the dataset, preprocessing, network architecture and imp
 - Python 2.7
 - [Tensorflow](https://www.tensorflow.org/)
 - [TA-Lib](https://mrjbq7.github.io/ta-lib/) (for processing Bitcoin Price Series)
-- [Pandas](https://pandas.pydata.org) (for pre-processing Bitcoin Price Series)<br>
+- [Pandas](https://pandas.pydata.org) (for pre-processing Bitcoin Price Series)
+- [tqdm](https://pypi.python.org/pypi/tqdm) (for displaying progress of training)<br>
 
 To setup a ubuntu virtual machine with all the dependencies to run the code, refer to `assets/vm`.
 
