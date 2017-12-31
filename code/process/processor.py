@@ -7,8 +7,8 @@ from utils.strings import *
 from utils.util import print_and_log_message, print_and_log_message_list
 
 class Processor:
-    '''Preprocessor for Bitcoin prices dataset as obtained from 
-    https://www.kaggle.com/mczielinski/bitcoin-historical-data/data'''
+    '''Preprocessor for Bitcoin prices dataset as obtained by following the procedure 
+    described in https://github.com/philipperemy/deep-learning-bitcoin'''
 
     def __init__(self, config, logger):
         self.dataset_path = config[DATASET_PATH]
@@ -22,6 +22,10 @@ class Processor:
     @property
     def price_blocks(self):
         return self._price_blocks
+
+    @property
+    def timestamp_blocks(self):
+        return self._timestamp_blocks
         
     def preprocess(self):
         data = pd.read_csv(self.dataset_path)
@@ -50,6 +54,7 @@ class Processor:
 
     def generate_attributes(self):
         self._price_blocks = []
+        self._timestamp_blocks = []
         for data_block in self._data_blocks:
             weighted_prices = data_block['price_close'].values
             diff = np.diff(weighted_prices)
@@ -59,7 +64,9 @@ class Processor:
             
             price_block = np.column_stack((weighted_prices, diff, sma15, 
                                             weighted_prices - sma15, sma15 - sma30))
+                                
             self._price_blocks.append(price_block)
+            self._timestamp_blocks.append(data_block['DateTime_UTC'].values)
         
         self._data_blocks = None #free memory
             

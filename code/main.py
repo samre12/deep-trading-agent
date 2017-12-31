@@ -22,7 +22,7 @@ def main(config_file_path):
 
     with tf.Session() as sess:
         processor = Processor(config, logger)
-        env = Environment(logger, config, processor.price_blocks)
+        env = Environment(logger, config, processor.price_blocks, processor.timestamp_blocks)
         agent = Agent(sess, logger, config, env)
         
         summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])
