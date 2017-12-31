@@ -1,10 +1,20 @@
+import os
+
+import tensorflow as tf
+
 from utils.constants import *
 from utils.strings import *
+from utils.util import print_and_log_message, print_and_log_message_list
 
 class BaseAgent(object):
     '''Base class containing all the parameters for reinforcement learning'''
 
-    def __init__(self, config):
+    def __init__(self, config, logger):
+        self.logger = logger
+        self._checkpoint_dir = os.path.join("checkpoints", config[SAVE_DIR])
+        if not os.path.exists(self._checkpoint_dir):
+            os.makedirs(self._checkpoint_dir)
+
         scale = 10000
 
         self.max_step = 5000 * scale
@@ -27,3 +37,35 @@ class BaseAgent(object):
 
         # _test_step = 5 * scale
         # _save_step = _test_step * 10
+
+    @property
+    def checkpoint_dir(self):
+        return self._checkpoint_dir
+
+    @property
+    def saver(self):
+        if self._saver == None:
+        self._saver = tf.train.Saver(max_to_keep=10)
+        return self._saver
+
+    def save_model(self, step=None):
+        message = "Saving checkpoint to {}".format(self.checkpoint_dir)
+        print_and_log_message(message, self.logger)
+        self.saver.save(self.sess, self.checkpoint_dir, global_step=step)
+
+    def load_model(self):
+        message = "Loading checkpoint from {}".format(self.checkpoint_dir)
+        print_and_log_message(message, self.logger)
+
+        ckpt = tf.train.get_checkpoint_state(self.checkpoint_dir)
+        if ckpt and ckpt.model_checkpoint_path:
+            ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
+            fname = os.path.join(self.checkpoint_dir, ckpt_name)
+            self.saver.restore(self.sess, fname)
+            message = "Checkpoint successfully loaded from {}".format(fname)
+            print_and_log_message(message, self.logger)
+            return True
+        else:
+            message = "Checkpoint could not be loaded from {}".format(self.checkpoint_dir)
+            print_and_log_message(message, self.logger)
+            return False

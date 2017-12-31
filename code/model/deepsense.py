@@ -17,30 +17,15 @@ class DeepSense:
         self.sess = sess
         self.__name__ = name
 
-        self._model_dir = join(config[SAVE_DIR], self.__name__)
-        if not os.path.exists(self._model_dir):
-            os.makedirs(self._model_dir)
-
-        self._saver = None
         self._weights = None
 
     @property
     def action(self):
         return self._action
-        
-    @property
-    def model_dir(self):
-        return self._model_dir
 
     @property
     def name(self):
         return self.__name__
-
-    @property
-    def saver(self):
-        if self._saver == None:
-            self._saver = tf.train.Saver(max_to_keep=30)
-        return self._saver
 
     @property
     def values(self):
@@ -105,31 +90,6 @@ class DeepSense:
                         training=train,
                         name=name
                     )        
-
-    def save_model(self, step=None):
-        save_path = join(self._model_dir, self.__name__)
-        message_list = ["Saving model to {}".format(save_path)]
-        save_path = self._saver.save(self.sess, save_path, global_step=step)
-    
-        message_list.append("Model saved to {}".format(save_path))
-        print_and_log_message_list(message_list, self.logger)
-
-    def load_model(self):
-        message_list = ["Loading checkpoints from {}".format(self._model_dir)]
-        
-        ckpt = tf.train.get_checkpoint_state(self._model_dir)
-        if ckpt and ckpt.model_checkpoint_path:
-            ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
-            fname = join(self._model_dir, ckpt_name)
-            self._saver.restore(self.sess, fname)
-            message_list.append("Model successfully loaded from {}".format(fname))
-            print_and_log_message_list(message_list, self.logger)
-            return True
-
-        else:
-            message_list.append("Model could not be loaded from {}".format(self._model_dir))
-            print_and_log_message_list(message_list, self.logger)
-            return False
 
     def build_model(self, inputs, train=True, reuse=False):
         with tf.variable_scope(self.__name__, reuse=reuse):
@@ -198,4 +158,4 @@ class DeepSense:
 
             self._values = self.dense_layer(output, self.params.num_actions, Q_VALUES, reuse)
             self._action = tf.arg_max(self._values, dimension=1, name=ACTION)
-            self._saver = tf.train.Saver(max_to_keep=30)
+

@@ -13,23 +13,23 @@ from model.deepsenseparams import DeepSenseParams
 from model.environment import Environment
 from model.history import History
 from model.replay_memory import ReplayMemory
+from model.util import clipped_error
 
 from utils.constants import *
 from utils.strings import *
-from utils.util import print_and_log_message, print_and_log_message_list, \
-                        clipped_error
+from utils.util import print_and_log_message, print_and_log_message_list
+                        
 
 class Agent(BaseAgent):
     '''Deep Trading Agent based on Deep Q Learning'''
     '''TODO: 
         1. add summary ops
         2. timing and logging
-        3. model saving
-        4. increment self.step
+        3. increment self.step
     '''
 
     def __init__(self, sess, logger, config, env):
-        super(Agent, self).__init__(config)
+        super(Agent, self).__init__(config, logger)
         self.sess = sess
         self.logger = logger
         self.config = config
@@ -175,6 +175,7 @@ class Agent(BaseAgent):
                 self.global_step = tf.Variable(0, trainable=False)
 
                 self.loss = tf.reduce_mean(clipped_error(self.delta), name=LOSS)
+
             with tf.variable_scope(OPTIMIZER):
                 self.learning_rate_step = tf.placeholder(tf.int64, None, name=LEARNING_RATE_STEP)
                 self.learning_rate_op = tf.maximum(self.learning_rate_minimum,
@@ -188,9 +189,11 @@ class Agent(BaseAgent):
                 self.optimizer = tf.train.RMSPropOptimizer(
                     self.learning_rate_op, momentum=0.95, epsilon=0.01).minimize(self.loss)
 
-        # tf.initialize_all_variables().run()
-        #initialize the q network and the target network with the same weights
-        # self.update_target_network()
+        tf.initialize_all_variables().run()
+        self._saver = tf.train.Saver(self.q.weights.values + [self.step_op], max_to_keep=30)
+        
+        self.load_model()
+        self.update_target_network()
 
     def update_target_network(self):
         for name in self.q.weights.keys():

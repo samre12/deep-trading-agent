@@ -4,6 +4,8 @@ import random
 import numpy as np
 from os.path import join
 
+from model.util import save_npy, load_npy
+
 from utils.constants import *
 from utils.strings import *
 from utils.util import print_and_log_message, print_and_log_message_list
@@ -59,6 +61,7 @@ class ReplayMemory:
 
     def save(self):
         message = "Saving replay memory to {}".format(self._model_dir)
+        print_and_log_message(message, self.logger)
         for idx, (name, array) in enumerate(
             zip([ACTIONS, REWARDS, SCREENS, TERMINALS, PRESTATES, POSTSTATES],
                 [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates])):
