@@ -1,4 +1,4 @@
-"""Code adapted from https://github.com/tambetm/simple_dqn/blob/master/src/replay_memory.py"""
+"""Code adapted from https://github.com/devsisters/DQN-tensorflow/tree/master/dqn/replay_memory.py"""
 
 import random
 import numpy as np

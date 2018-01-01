@@ -25,9 +25,7 @@ def main(config_file_path):
         env = Environment(logger, config, processor.price_blocks, processor.timestamp_blocks)
         agent = Agent(sess, logger, config, env)
         
-        summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])
-        summary_writer.add_graph(sess.graph)
-        summary_writer.close()
+        agent.summary_writer.close()
 
 
 if __name__ == "__main__":

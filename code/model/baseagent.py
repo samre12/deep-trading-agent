@@ -1,3 +1,5 @@
+"""Code adapted from https://github.com/devsisters/DQN-tensorflow/tree/master/dqn/base.py"""
+
 import os
 
 import tensorflow as tf
@@ -15,7 +17,7 @@ class BaseAgent(object):
         if not os.path.exists(self._checkpoint_dir):
             os.makedirs(self._checkpoint_dir)
 
-        scale = 10000
+        scale = 5000 #value mentioned originally is 10000
 
         self.max_step = 5000 * scale
 
@@ -35,8 +37,10 @@ class BaseAgent(object):
         self.min_delta = -1
         self.max_delta = 1
 
-        # _test_step = 5 * scale
-        # _save_step = _test_step * 10
+        self.test_step = 5 * scale
+        self.save_step = self.test_step * 10
+
+        self.env_name = "btc_sim"
 
     @property
     def checkpoint_dir(self):

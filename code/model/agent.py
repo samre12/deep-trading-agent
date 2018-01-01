@@ -1,4 +1,4 @@
-"""Code adapted from https://github.com/tambetm/simple_dqn/blob/master/src/replay_memory.py"""
+"""Code adapted from https://github.com/devsisters/DQN-tensorflow/tree/master/dqn/agent.py"""
 
 from __future__ import print_function
 import os
@@ -19,13 +19,10 @@ from utils.constants import *
 from utils.strings import *
 from utils.util import print_and_log_message, print_and_log_message_list
                         
-
 class Agent(BaseAgent):
     '''Deep Trading Agent based on Deep Q Learning'''
     '''TODO: 
-        1. add summary ops
-        2. timing and logging
-        3. increment self.step
+        1. play
     '''
 
     def __init__(self, sess, logger, config, env):
@@ -46,6 +43,10 @@ class Agent(BaseAgent):
 
         self.build_dqn(params)
 
+    @property
+    def summary_writer(self):
+        return self._summary_writer
+
     def train(self):
         start_step = self.step_op.eval()
 
@@ -56,7 +57,7 @@ class Agent(BaseAgent):
 
         self.env.new_random_episode(self.history)
 
-        for self.step in range(start_step, self.max_step):
+        for self.step in tqdm(range(start_step, self.max_step), ncols=70, initial=start_step):
             if self.step == self.learn_start:
                 num_episodes, self.update_count, ep_reward = 0, 0, 0.
                 total_reward, self.total_loss, self.total_q = 0., 0., 0.
@@ -80,7 +81,52 @@ class Agent(BaseAgent):
 
             actions.append(action)
             total_reward += reward
+            
+            if self.step >= self.learn_start:
+                if self.step % self.test_step == self.test_step - 1:
+                    avg_reward = total_reward / self.test_step
+                    avg_loss = self.total_loss / self.update_count
+                    avg_q = self.total_q / self.update_count
 
+                    try:
+                        max_ep_reward = np.max(ep_rewards)
+                        min_ep_reward = np.min(ep_rewards)
+                        avg_ep_reward = np.mean(ep_rewards)
+                    except:
+                        max_ep_reward, min_ep_reward, avg_ep_reward = 0, 0, 0
+
+                    message = 'avg_r: %.4f, avg_l: %.6f, avg_q: %3.6f, avg_ep_r: %.4f, max_ep_r: %.4f, min_ep_r: %.4f, # game: %d' \
+                        % (avg_reward, avg_loss, avg_q, avg_ep_reward, max_ep_reward, min_ep_reward, num_game)
+                    print_and_log_message(message, self.logger)
+
+                    if max_avg_ep_reward * 0.9 <= avg_ep_reward:
+                        self.step_assign_op.eval({self.step_input: self.step + 1})
+                        self.save_model(self.step + 1)
+
+                        max_avg_ep_reward = max(max_avg_ep_reward, avg_ep_reward)
+
+                    if self.step > 180:
+                        self.inject_summary({
+                            'average.reward': avg_reward,
+                            'average.loss': avg_loss,
+                            'average.q': avg_q,
+                            'episode.max reward': max_ep_reward,
+                            'episode.min reward': min_ep_reward,
+                            'episode.avg reward': avg_ep_reward,
+                            'episode.num of game': num_game,
+                            'episode.rewards': ep_rewards,
+                            'episode.actions': actions,
+                            'training.learning_rate': self.learning_rate_op.eval({self.learning_rate_step: self.step}),
+                        }, self.step)
+
+                    num_game = 0
+                    total_reward = 0.
+                    self.total_loss = 0.
+                    self.total_q = 0.
+                    self.update_count = 0
+                    ep_reward = 0.
+                    ep_rewards = []
+                    actions = []
     
     def predict(self, s_t, test_ep=None):
         ep = test_ep or (self.ep_end +
@@ -116,13 +162,14 @@ class Agent(BaseAgent):
             terminal = np.array(terminal) + 0.
             target_q = reward + (1 - terminal) * max_q_t_plus_1
 
-            _, q_t, loss = self.sess.run([self.optimizer, self.q.values, self.loss], {
+            _, q_t, loss, avg_q_summary = self.sess.run([self.optimizer, self.q.values, self.loss, self.q.avg_q_summary], {
                 self.target_q: target_q,
                 self.action: action,
                 self.s_t: s_t,
                 self.learning_rate_step: self.step,
                 })
 
+            self.summary_writer.add_summary(avg_q_summary, self.step)
             self.total_loss += loss
             self.total_q += q_t.mean()
             self.update_count += 1
@@ -189,6 +236,36 @@ class Agent(BaseAgent):
                 self.optimizer = tf.train.RMSPropOptimizer(
                     self.learning_rate_op, momentum=0.95, epsilon=0.01).minimize(self.loss)
 
+        with tf.variable_scope(SUMMARY):
+            scalar_summary_tags = ['average.reward', 'average.loss', 'average.q', \
+                'episode.max reward', 'episode.min reward', 'episode.avg reward', \
+                'episode.num of game', 'training.learning_rate']            
+
+            self.summary_placeholders = {}
+            self.summary_ops = {}
+
+            for tag in scalar_summary_tags:
+                self.summary_placeholders[tag] = \
+                    tf.placeholder('float32', None, name=tag.replace(' ', '_'))
+                self.summary_ops[tag] = \
+                    tf.summary.scalar(
+                        name="{}-{}".format(self.env_name, tag),
+                        tensor=self.summary_placeholders[tag]
+                    )
+
+            histogram_summary_tags = ['episode.rewards', 'episode.actions']
+            for tag in histogram_summary_tags:
+                self.summary_placeholders[tag] = \
+                    tf.placeholder('float32', None, name=tag.replace(' ', '_'))
+                self.summary_ops[tag] = \
+                    tf.summary.histogram(
+                        name=tag,
+                        self.summary_placeholders[tag]
+                    )
+
+        self._summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])
+        self._summary_writer.add_graph(sess.graph)
+
         tf.initialize_all_variables().run()
         self._saver = tf.train.Saver(self.q.weights.values + [self.step_op], max_to_keep=30)
         
@@ -200,4 +277,11 @@ class Agent(BaseAgent):
             self.t_weights_assign_ops[name].eval(
                 {self.q_weights_placeholders[name]: self.q.weights[name].eval()}
             )
+    
+    def inject_summary(self, tag_dict, step):
+        summary_str_lists = self.sess.run([self.summary_ops[tag] for tag in tag_dict.keys()], {
+            self.summary_placeholders[tag]: value for tag, value in tag_dict.items()
+        })
+        for summary_str in summary_str_lists:
+            self.writer.add_summary(summary_str, self.step)
         

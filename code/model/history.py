@@ -25,7 +25,7 @@ class History:
         self._history[-1] = screen
     
     def set_history(self, history):
-        if history.shape != self._history:
+        if history.shape != self._history.shape:
             print_and_log_message(INVALID_HISTORY, self.logger)
         
         self._history = history

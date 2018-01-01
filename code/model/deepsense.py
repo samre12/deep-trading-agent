@@ -24,6 +24,10 @@ class DeepSense:
         return self._action
 
     @property
+    def avg_q_summary(self):
+        return self._avg_q_summary
+
+    @property
     def name(self):
         return self.__name__
 
@@ -157,5 +161,12 @@ class DeepSense:
                                                         DROPOUT_DENSE_.format(i + 1))
 
             self._values = self.dense_layer(output, self.params.num_actions, Q_VALUES, reuse)
+            
+            with tf.name_scope(AVG_Q_SUMMARY):
+                avg_q = tf.reduce_mean(self._values, axis=0)
+                self._avg_q_summary = []
+                for idx in range(self.params.num_actions):
+                    self._avq_g_summary.append(tf.summary.histogram('q/{}'.format(idx), avg_q[idx]))
+                self._avq_q_summary = tf.summary.merge(self._avg_q_summary, name=AVG_Q_SUMMARY)
+            
             self._action = tf.arg_max(self._values, dimension=1, name=ACTION)
-

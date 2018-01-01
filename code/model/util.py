@@ -1,3 +1,5 @@
+"""Code adapted from https://github.com/devsisters/DQN-tensorflow/tree/master/dqn/utils.py"""
+
 try:
     import cPickle as pickle
 except:
@@ -14,20 +16,6 @@ def clipped_error(x):
         return tf.select(tf.abs(x) < 1.0, 0.5 * tf.square(x), tf.abs(x) - 0.5)
     except:
         return tf.where(tf.abs(x) < 1.0, 0.5 * tf.square(x), tf.abs(x) - 0.5)
-
-def save_pkl(obj, path, logger):
-    with open(path, 'w') as f:
-        cPickle.dump(obj, f)
-        message = "  [*] saved at {}".format(path)
-        print_and_log_message(message, logger)
-
-
-def load_pkl(path, logger):
-    with open(path) as f:
-        obj = cPickle.load(f)
-        message = "  [*] loaded from {}".format(path)
-        print_and_log_message(message, logger)
-        return obj
 
 def save_npy(obj, path, logger):
     np.save(path, obj)
