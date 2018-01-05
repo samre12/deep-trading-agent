@@ -64,8 +64,10 @@ class Processor:
             
             price_block = np.column_stack((weighted_prices, diff, sma15, 
                                             weighted_prices - sma15, sma15 - sma30))
+            price_block = pd.DataFrame(data=price_block)
+            price_block.fillna(method='bfill', inplace=True)
                                 
-            self._price_blocks.append(price_block)
+            self._price_blocks.append(price_block.as_matrix())
             self._timestamp_blocks.append(data_block['DateTime_UTC'].values)
         
         self._data_blocks = None #free memory

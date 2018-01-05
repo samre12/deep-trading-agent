@@ -3,6 +3,7 @@
 import numpy as np
 
 from utils.constants import *
+from utils.strings import *
 from utils.util import print_and_log_message
 
 class History:
@@ -14,21 +15,15 @@ class History:
         batch_size, history_length, self.num_channels = \
             config[BATCH_SIZE], config[HISTORY_LENGTH], config[NUM_CHANNELS]
 
+        self.dims = (self.num_channels,)
         self._history = np.zeros(
             [history_length, self.num_channels], dtype=np.float32)
 
     def add(self, screen):
-        if screen.shape != (self.num_channels):
+        if screen.shape != self.dims:
             print_and_log_message(INVALID_TIMESTEP, self.logger)
-            
         self._history[:-1] = self._history[1:]
         self._history[-1] = screen
-    
-    def set_history(self, history):
-        if history.shape != self._history.shape:
-            print_and_log_message(INVALID_HISTORY, self.logger)
-        
-        self._history = history
 
     @property
     def history(self):

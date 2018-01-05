@@ -24,9 +24,9 @@ def main(config_file_path):
         processor = Processor(config, logger)
         env = Environment(logger, config, processor.price_blocks, processor.timestamp_blocks)
         agent = Agent(sess, logger, config, env)
-        
-        agent.summary_writer.close()
+        agent.train()
 
+        agent.summary_writer.close()
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(description='Deep Q Trading with DeepSense Architecture')

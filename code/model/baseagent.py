@@ -34,6 +34,9 @@ class BaseAgent(object):
         self.train_frequency = 4
         self.learn_start = 5. * scale
 
+        self.min_reward = -1.0
+        self.max_reward = 1.0
+
         self.min_delta = -1
         self.max_delta = 1
 
@@ -49,7 +52,7 @@ class BaseAgent(object):
     @property
     def saver(self):
         if self._saver == None:
-        self._saver = tf.train.Saver(max_to_keep=10)
+            self._saver = tf.train.Saver(max_to_keep=10)
         return self._saver
 
     def save_model(self, step=None):

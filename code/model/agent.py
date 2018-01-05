@@ -1,9 +1,10 @@
 """Code adapted from https://github.com/devsisters/DQN-tensorflow/tree/master/dqn/agent.py"""
 
-from __future__ import print_function
 import os
+import sys
 import time
 import random
+from tqdm import tqdm
 import tensorflow as tf
 import numpy as np
 
@@ -48,14 +49,14 @@ class Agent(BaseAgent):
         return self._summary_writer
 
     def train(self):
-        start_step = self.step_op.eval()
+        start_step = self.sess.run(self.step_op)
 
         num_episodes, self.update_count, ep_reward = 0, 0, 0.
         total_reward, self.total_loss, self.total_q = 0., 0., 0.
         max_avg_ep_reward = 0
         ep_rewards, actions = [], []
 
-        self.env.new_random_episode(self.history)
+        self.env.new_random_episode(self.history, self.replay_memory)
 
         for self.step in tqdm(range(start_step, self.max_step), ncols=70, initial=start_step):
             if self.step == self.learn_start:
@@ -64,14 +65,14 @@ class Agent(BaseAgent):
                 ep_rewards, actions = [], []
 
             # 1. predict
-            action = self.predict(self.history.get())
+            action = self.predict(self.history.history)
             # 2. act
             screen, reward, terminal = self.env.act(action)
             # 3. observe
             self.observe(screen, reward, action, terminal)
 
             if terminal:
-                self.env.new_random_episode(self.history)
+                self.env.new_random_episode(self.history, self.replay_memory)
                 num_episodes += 1
                 ep_rewards.append(ep_reward)
                 ep_reward = 0.
@@ -100,7 +101,10 @@ class Agent(BaseAgent):
                     print_and_log_message(message, self.logger)
 
                     if max_avg_ep_reward * 0.9 <= avg_ep_reward:
-                        self.step_assign_op.eval({self.step_input: self.step + 1})
+                        self.sess.run(
+                            fetches=self.step_assign_op,
+                            feed_dict={self.step_input: self.step + 1}
+                        )
                         self.save_model(self.step + 1)
 
                         max_avg_ep_reward = max(max_avg_ep_reward, avg_ep_reward)
@@ -116,7 +120,10 @@ class Agent(BaseAgent):
                             'episode.num of game': num_game,
                             'episode.rewards': ep_rewards,
                             'episode.actions': actions,
-                            'training.learning_rate': self.learning_rate_op.eval({self.learning_rate_step: self.step}),
+                            'training.learning_rate': self.sess.run(
+                                fetches=self.learning_rate_op,
+                                feed_dict={self.learning_rate_step: self.step}
+                            )
                         }, self.step)
 
                     num_game = 0
@@ -134,9 +141,12 @@ class Agent(BaseAgent):
             * (self.ep_end_t - max(0., self.step - self.learn_start)) / self.ep_end_t))
 
         if random.random() < ep:
-            action = random.randrange(self.env.action_size)
+            action = random.randrange(self.config[NUM_ACTIONS])
         else:
-            action = self.q.action.eval({self.s_t: [s_t]})[0]
+            action = self.sess.run(
+                fetches=self.q.action,
+                feed_dict={self.q.phase: 0,  self.s_t: [s_t]}
+            )
 
         return action
 
@@ -156,13 +166,20 @@ class Agent(BaseAgent):
 
     def q_learning_mini_batch(self):
         if self.replay_memory.count >= self.replay_memory.history_length:
-            s_t, action, reward, s_t_plus_1, terminal = self.replay_memory.sample()
+            s_t, action, reward, s_t_plus_1, terminal = self.replay_memory.sample
             
-            max_q_t_plus_1 = self.t_q.action.eval({self.t_s_t: s_t_plus_1})
+            q_t_plus_1 = self.sess.run(
+                fetches=self.t_q.values,
+                feed_dict={self.t_q.phase: 0, self.t_s_t: s_t_plus_1}
+            )
+
+            max_q_t_plus_1 = np.max(q_t_plus_1, axis=1)
+
             terminal = np.array(terminal) + 0.
             target_q = reward + (1 - terminal) * max_q_t_plus_1
 
             _, q_t, loss, avg_q_summary = self.sess.run([self.optimizer, self.q.values, self.loss, self.q.avg_q_summary], {
+                self.q.phase: 1,
                 self.target_q: target_q,
                 self.action: action,
                 self.s_t: s_t,
@@ -183,6 +200,7 @@ class Agent(BaseAgent):
             )
         self.q = DeepSense(params, self.logger, self.sess, self.config, name=Q_NETWORK)
         self.q.build_model(self.s_t)
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
         with tf.variable_scope(TARGET):
             self.t_s_t = tf.placeholder(
@@ -211,7 +229,7 @@ class Agent(BaseAgent):
             self.target_q = tf.placeholder(tf.float32, [None], name=TARGET_Q)
             self.action = tf.placeholder(tf.int64, [None], name=ACTION)
             
-            action_one_hot = tf.one_hot(self.action, self.env.action_size, 
+            action_one_hot = tf.one_hot(self.action, self.config[NUM_ACTIONS], 
                                             1.0, 0.0, name=ACTION_ONE_HOT)
             q_acted = tf.reduce_sum(self.q.values * action_one_hot, 
                                         reduction_indices=1, name=Q_ACTED)
@@ -233,8 +251,9 @@ class Agent(BaseAgent):
                         self.learning_rate_decay,
                         staircase=True))
 
-                self.optimizer = tf.train.RMSPropOptimizer(
-                    self.learning_rate_op, momentum=0.95, epsilon=0.01).minimize(self.loss)
+                with tf.control_dependencies(update_ops):
+                    self.optimizer = tf.train.RMSPropOptimizer(
+                        self.learning_rate_op, momentum=0.95, epsilon=0.01).minimize(self.loss)
 
         with tf.variable_scope(SUMMARY):
             scalar_summary_tags = ['average.reward', 'average.loss', 'average.q', \
@@ -249,33 +268,38 @@ class Agent(BaseAgent):
                     tf.placeholder('float32', None, name=tag.replace(' ', '_'))
                 self.summary_ops[tag] = \
                     tf.summary.scalar(
-                        name="{}-{}".format(self.env_name, tag),
+                        name="{}-{}".format(self.env_name, tag.replace(' ', '_')),
                         tensor=self.summary_placeholders[tag]
                     )
 
             histogram_summary_tags = ['episode.rewards', 'episode.actions']
             for tag in histogram_summary_tags:
                 self.summary_placeholders[tag] = \
-                    tf.placeholder('float32', None, name=tag.replace(' ', '_'))
+                    tf.placeholder('float32', None, name=tag)
                 self.summary_ops[tag] = \
                     tf.summary.histogram(
-                        name=tag,
+                        tag,
                         self.summary_placeholders[tag]
                     )
 
-        self._summary_writer = tf.summary.FileWriter(config[TENSORBOARD_LOG_DIR])
-        self._summary_writer.add_graph(sess.graph)
-
-        tf.initialize_all_variables().run()
-        self._saver = tf.train.Saver(self.q.weights.values + [self.step_op], max_to_keep=30)
+        self.sess.run(tf.local_variables_initializer())
+        self.sess.run(tf.global_variables_initializer())
+        self._saver = tf.train.Saver(self.q.weights.values() + [self.step_op], max_to_keep=30)
         
         self.load_model()
         self.update_target_network()
 
+        self._summary_writer = tf.summary.FileWriter(self.config[TENSORBOARD_LOG_DIR])
+        self._summary_writer.add_graph(self.sess.graph)
+
     def update_target_network(self):
         for name in self.q.weights.keys():
-            self.t_weights_assign_ops[name].eval(
-                {self.q_weights_placeholders[name]: self.q.weights[name].eval()}
+            self.sess.run(
+                fetches=self.t_weights_assign_ops[name],
+                feed_dict=
+                {self.q_weights_placeholders[name]: self.sess.run(
+                    fetches=self.q.weights[name]
+                )}
             )
     
     def inject_summary(self, tag_dict, step):

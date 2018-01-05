@@ -22,6 +22,7 @@ class ReplayMemory:
         self.history_length = config[HISTORY_LENGTH]
         self.memory_size = config[MEMORY_SIZE]
         self.num_channels = config[NUM_CHANNELS]
+        self.dims = (self.num_channels,)
 
         self.actions = np.empty(self.memory_size, dtype = np.uint8)
         self.rewards = np.empty(self.memory_size, dtype = np.integer)
@@ -38,7 +39,7 @@ class ReplayMemory:
         self.current = 0
 
     def add(self, screen, reward, action, terminal):
-        if screen.shape != (self.num_channels):
+        if screen.shape != self.dims:
             print_and_log_message(INVALID_TIMESTEP, self.logger)
         else:
             self.actions[self.current] = action
