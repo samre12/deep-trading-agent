@@ -20,6 +20,10 @@ To setup a ubuntu virtual machine with all the dependencies to run the code, ref
 ## Support
 Please give a :star: to this repository to support the project :smile:.
 
+## ToDo
+- [ ] Fix the model to ensure convergence of state action function to positive values
+- [ ] Add Docket support for a fast and easy start with the project
+
 ## Trading Model
 is inspired by [Deep Q-Trading](http://cslt.riit.tsinghua.edu.cn/mediawiki/images/5/5f/Dtq.pdf) where they solve a simplified trading problem for a single asset. <br>
 For each trading unit, only one of the three actions: neutral(1), long(2) and short(3) are allowed and a reward is obtained depending upon the current position of agent. Deep Q-Learning agent is trained to maximize the total accumulated rewards. <br>
