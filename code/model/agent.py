@@ -97,7 +97,7 @@ class Agent(BaseAgent):
                         max_ep_reward, min_ep_reward, avg_ep_reward = 0, 0, 0
 
                     message = 'avg_r: %.4f, avg_l: %.6f, avg_q: %3.6f, avg_ep_r: %.4f, max_ep_r: %.4f, min_ep_r: %.4f, # game: %d' \
-                        % (avg_reward, avg_loss, avg_q, avg_ep_reward, max_ep_reward, min_ep_reward, num_game)
+                        % (avg_reward, avg_loss, avg_q, avg_ep_reward, max_ep_reward, min_ep_reward, num_episodes)
                     print_and_log_message(message, self.logger)
 
                     if max_avg_ep_reward * 0.9 <= avg_ep_reward:
@@ -117,7 +117,7 @@ class Agent(BaseAgent):
                             'episode.max reward': max_ep_reward,
                             'episode.min reward': min_ep_reward,
                             'episode.avg reward': avg_ep_reward,
-                            'episode.num of game': num_game,
+                            'episode.num of game': num_episodes,
                             'episode.rewards': ep_rewards,
                             'episode.actions': actions,
                             'training.learning_rate': self.sess.run(
@@ -126,7 +126,7 @@ class Agent(BaseAgent):
                             )
                         }, self.step)
 
-                    num_game = 0
+                    num_episodes = 0
                     total_reward = 0.
                     self.total_loss = 0.
                     self.total_q = 0.
@@ -146,7 +146,7 @@ class Agent(BaseAgent):
             action = self.sess.run(
                 fetches=self.q.action,
                 feed_dict={self.q.phase: 0,  self.s_t: [s_t]}
-            )
+            )[0]
 
         return action
 
@@ -307,5 +307,5 @@ class Agent(BaseAgent):
             self.summary_placeholders[tag]: value for tag, value in tag_dict.items()
         })
         for summary_str in summary_str_lists:
-            self.writer.add_summary(summary_str, self.step)
+            self.summary_writer.add_summary(summary_str, self.step)
         

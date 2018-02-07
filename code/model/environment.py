@@ -3,7 +3,7 @@ import numpy as np
 
 from utils.constants import *
 from utils.strings import *
-from utils.util import print_and_log_message, print_and_log_message_list
+from utils.util import print_and_log_message_list
 
 class Environment:
     '''Exchange Simulator for Bitcoin based upon per minute historical prices'''
