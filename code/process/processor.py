@@ -19,7 +19,7 @@ class Processor:
         self.preprocess()
         self.generate_attributes()
 
-    @property
+    @propertydd
     def price_blocks(self):
         return self._price_blocks
 
@@ -43,9 +43,15 @@ class Processor:
         self._data_blocks = []
         distinct_episodes = 0
         for name, indices in blocks.indices.items():
-            if len(indices) > (self.history_length + self.horizon):
+            ''' 
+            Length of the block should exceed the history length and horizon by 1.
+            Extra 1 is required to normalize each price block by previos time stamp
+            '''
+            if len(indices) > (self.history_length + self.horizon + 1):
+                
                 self._data_blocks.append(blocks.get_group(name))
-                distinct_episodes = distinct_episodes + (len(indices) - (self.history_length + self.horizon) + 1)
+                # similarly, we subtract an extra 1 to calculate the number of distinct episodes
+                distinct_episodes = distinct_episodes + (len(indices) - (self.history_length + self.horizon) + 1 + 1)
 
         data = None
         message_list = ['Number of usable blocks obtained from the dataset are {}'.format(len(self._data_blocks))]
@@ -56,19 +62,13 @@ class Processor:
         self._price_blocks = []
         self._timestamp_blocks = []
         for data_block in self._data_blocks:
-            weighted_prices = data_block['price_close'].values
-            diff = np.diff(weighted_prices)
-            diff = np.insert(diff, 0, 0)
-            sma15 = SMA(data_block, timeperiod=15, price='price_close')
-            sma30 = SMA(data_block, timeperiod=30, price='price_close')        
+            block = data_block[['price_close', 'price_low', 'price_high', 'volume']]
+            normalized_block = block.shift(-1)[:-1].truediv(block[:-1])        
             
-            price_block = np.column_stack((weighted_prices, diff, sma15, 
-                                            weighted_prices - sma15, sma15 - sma30))
-            price_block = pd.DataFrame(data=price_block)
-            price_block.fillna(method='bfill', inplace=True)
+            price_block = normalized_block.as_matrix()
                                 
-            self._price_blocks.append(price_block.as_matrix())
-            self._timestamp_blocks.append(data_block['DateTime_UTC'].values)
+            self._price_blocks.append(price_block)
+            self._timestamp_blocks.append(data_block['DateTime_UTC'].values[1:])
         
         self._data_blocks = None #free memory
             

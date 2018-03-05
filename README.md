@@ -31,9 +31,9 @@ Please give a :star: to this repository to support the project :smile:.
 
 ### Improve Model performance
 
-- [ ] Extract highest and lowest prices and the volume of Bitcoin traded within a given time interval in the [`Preprocessor`](https://github.com/samre12/deep-trading-agent/blob/f8b5604aac3e68905034e4a0597867f37cecb342/code/process/processor.py#L9)
-- [ ] Use closing, highest, lowest prices and the volume traded as input channels to the model (remove features calculated just using closing prices)
-- [ ] Normalize the price tensors using the price of the previous time step
+- [X] Extract highest and lowest prices and the volume of Bitcoin traded within a given time interval in the [`Preprocessor`](https://github.com/samre12/deep-trading-agent/blob/f8b5604aac3e68905034e4a0597867f37cecb342/code/process/processor.py#L9)
+- [X] Use closing, highest, lowest prices and the volume traded as input channels to the model (remove features calculated just using closing prices)
+- [X] Normalize the price tensors using the price of the previous time step
 - [ ] For the complete state representation, input the remaining number of trades to the model
 - [ ] Use [exponentially decayed weighted unrealized PnL](https://github.com/samre12/deep-trading-agent/wiki/Reward-Function#exponentially-weighted-unrealized-pnl) as a reward function to incorporate current state of investment and stabilize the learning of the agent
 
