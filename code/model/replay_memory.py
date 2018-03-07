@@ -25,20 +25,23 @@ class ReplayMemory:
         self.dims = (self.num_channels,)
 
         self.actions = np.empty(self.memory_size, dtype = np.uint8)
-        self.rewards = np.empty(self.memory_size, dtype = np.integer)
+        self.rewards = np.empty(self.memory_size, dtype = np.float32)
         self.screens = np.empty((self.memory_size, config[NUM_CHANNELS]), dtype = np.float32)
         self.terminals = np.empty(self.memory_size, dtype = np.bool)
+        self.trades_rem = np.empty(self.memory_size, dtype = np.float32)
         
         # pre-allocate prestates and poststates for minibatch
-        self.prestates = np.empty((self.batch_size, self.history_length, self.num_channels), 
-                                        dtype = np.float32)
-        self.poststates = np.empty((self.batch_size, self.history_length, self.num_channels), 
-                                        dtype = np.float32)
+        self.prestates = (np.empty((self.batch_size, self.history_length, self.num_channels), 
+                                        dtype = np.float32),\
+                                        np.empty(self.batch_size, dtype=np.float32))
+        self.poststates = (np.empty((self.batch_size, self.history_length, self.num_channels), 
+                                        dtype = np.float32),\
+                                        np.empty(self.batch_size, dtype=np.float32))
         
         self.count = 0
         self.current = 0
 
-    def add(self, screen, reward, action, terminal):
+    def add(self, screen, reward, action, terminal, trade_rem):
         if screen.shape != self.dims:
             print_and_log_message(INVALID_TIMESTEP, self.logger)
         else:
@@ -46,6 +49,7 @@ class ReplayMemory:
             self.rewards[self.current] = reward
             self.screens[self.current, ...] = screen
             self.terminals[self.current] = terminal
+            self.trades_rem[self.current] = trade_rem
             self.count = max(self.count, self.current + 1)
             self.current = (self.current + 1) % self.memory_size
 
@@ -55,17 +59,19 @@ class ReplayMemory:
         else:
             index = index % self.count
             if index >= self.history_length - 1:
-                return self.screens[(index - (self.history_length - 1)):(index + 1), ...]
+                return self.screens[(index - (self.history_length - 1)):(index + 1), ...], \
+                        self.trades_rem[index]
+                        
             else:
                 indexes = [(index - i) % self.count for i in reversed(range(self.history_length))]
-                return self.screens[indexes, ...]
+                return self.screens[indexes, ...], self.trade_rem[index]
 
     def save(self):
         message = "Saving replay memory to {}".format(self._model_dir)
         print_and_log_message(message, self.logger)
         for idx, (name, array) in enumerate(
-            zip([ACTIONS, REWARDS, SCREENS, TERMINALS, PRESTATES, POSTSTATES],
-                [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates])):
+            zip([ACTIONS, REWARDS, SCREENS, TERMINALS, TRADES_REM, PRESTATES, POSTSTATES],
+                [self.actions, self.rewards, self.screens, self.terminals, self.trades_rem, self.prestates, self.poststates])):
             save_npy(array, join(self._model_dir, name))
 
         message = "Replay memory successfully saved to {}".format(self._model_dir)
@@ -76,8 +82,8 @@ class ReplayMemory:
         print_and_log_message(message, self.logger)
 
         for idx, (name, array) in enumerate(
-            zip([ACTIONS, REWARDS, SCREENS, TERMINALS, PRESTATES, POSTSTATES],
-                [self.actions, self.rewards, self.screens, self.terminals, self.prestates, self.poststates])):
+            zip([ACTIONS, REWARDS, SCREENS, TERMINALS, TRADES_REM, PRESTATES, POSTSTATES],
+                [self.actions, self.rewards, self.screens, self.terminals, self.trades_rem, self.prestates, self.poststates])):
             array = load_npy(join(self._model_dir, name))
 
         message = "Replay memory successfully loaded from {}".format(self._model_dir)
@@ -110,8 +116,8 @@ class ReplayMemory:
                     break
                 
                 # NB! having index first is fastest in C-order matrices
-                self.prestates[len(indexes), ...] = self.getState(index - 1)
-                self.poststates[len(indexes), ...] = self.getState(index)
+                self.prestates[0][len(indexes), ...], self.prestates[0][len(indexes)] = self.getState(index - 1)
+                self.poststates[0][len(indexes), ...], self.poststates[1][len(indexes)] = self.getState(index)
                 indexes.append(index)
 
             actions = self.actions[indexes]

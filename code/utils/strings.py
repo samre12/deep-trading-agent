@@ -2,6 +2,7 @@
 ACTION = "action"
 ACTIONS = "actions"
 DEEP_TRADING_AGENT = "deep_trading_agent"
+TRADES_REM = "trades_rem"
 LONG = "long"
 NEUTRAL = "neutral"
 POSTSTATES = "poststates"

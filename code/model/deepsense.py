@@ -96,7 +96,9 @@ class DeepSense:
                         name=name
                     )        
 
-    def build_model(self, inputs, train=True, reuse=False):
+    def build_model(self, state, train=True, reuse=False):
+        inputs = state[0]
+        trade_rem = state[1]
         with tf.variable_scope(self.__name__, reuse=reuse):
             with tf.name_scope(PHASE):
                 self.phase = tf.placeholder(dtype=tf.bool)
@@ -156,6 +158,11 @@ class DeepSense:
                 )
             output = tf.unstack(output, axis=1)[-1]
             # self.debug3 = output
+
+            ''' 
+            Append the information regarding the number of trades left in the episode
+            '''
+            output = tf.stack([output, trade_rem], axis=0)
 
             with tf.variable_scope(FULLY_CONNECTED, reuse=reuse):
                 num_dense_layers = len(self.params.dense_layer_sizes)

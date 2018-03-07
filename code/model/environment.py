@@ -51,10 +51,16 @@ class Environment:
         #Set history and replay memory
         for state in self.historical_prices[self.current - self.history_length:self.current]:
             history.add(state)
-            replay_memory.add(state, 0.0, 0, False)
-            
+            replay_memory.add(state, 0.0, 0, False, 0.0)
+
         print_and_log_message_list(message_list, self.logger)
 
+        return 1.0
+
+    '''TODO:
+    1. Have to keep separate price blocks to calculate the unrealized PnL
+    2. Use exponentially decaying unrealized PnL as the reward function for the agent 
+    '''
     def act(self, action):
         state = self.historical_prices[self.current]
         price = state[0]
@@ -70,8 +76,8 @@ class Environment:
         self.timesteps = self.timesteps + 1
         if self.timesteps is not self.horizon:
             self.current = self.current + 1
-            return state, 0, False
+            return state, 0, False, ((1.0/self.horizon) * (self.horizon - self.timesteps)) 
         else:
             reward = self.liquid - self.borrow + \
                         (self.long - self.short) * price * self.unit
-            return state, reward, True
+            return state, reward, True, 0.0
