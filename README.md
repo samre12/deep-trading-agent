@@ -35,6 +35,7 @@ Please give a :star: to this repository to support the project :smile:.
 - [X] Use closing, highest, lowest prices and the volume traded as input channels to the model (remove features calculated just using closing prices)
 - [X] Normalize the price tensors using the price of the previous time step
 - [X] For the complete state representation, input the remaining number of trades to the model
+- [X] Use separate diff price blocks to calculate the unrealized PnL
 - [ ] Use [exponentially decayed weighted unrealized PnL](https://github.com/samre12/deep-trading-agent/wiki/Reward-Function#exponentially-weighted-unrealized-pnl) as a reward function to incorporate current state of investment and stabilize the learning of the agent
 
 ## Trading Model

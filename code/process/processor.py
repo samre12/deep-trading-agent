@@ -19,7 +19,11 @@ class Processor:
         self.preprocess()
         self.generate_attributes()
 
-    @propertydd
+    @property
+    def diff_blocks(self):
+        return self._diff_blocks
+
+    @property
     def price_blocks(self):
         return self._price_blocks
 
@@ -59,15 +63,21 @@ class Processor:
         print_and_log_message_list(message_list, self.logger)
 
     def generate_attributes(self):
+        self._diff_blocks = []
         self._price_blocks = []
         self._timestamp_blocks = []
+
         for data_block in self._data_blocks:
             block = data_block[['price_close', 'price_low', 'price_high', 'volume']]
+            closing_prices = block['price_close']
+
+            diff_block = closing_prices.shift(-1):[:-1].subtract(closing_prices[:-1])
+
+            # currently normalizing the prices by previous prices of the same category
             normalized_block = block.shift(-1)[:-1].truediv(block[:-1])        
             
-            price_block = normalized_block.as_matrix()
-                                
-            self._price_blocks.append(price_block)
+            self._diff_blocks.append(diff_block.as_matrix())
+            self._price_blocks.append(normalized_block.as_matrix())
             self._timestamp_blocks.append(data_block['DateTime_UTC'].values[1:])
         
         self._data_blocks = None #free memory

@@ -22,7 +22,9 @@ def main(config_file_path):
 
     with tf.Session() as sess:
         processor = Processor(config, logger)
-        env = Environment(logger, config, processor.price_blocks, processor.timestamp_blocks)
+        env = Environment(logger, config, processor.diff_blocks, 
+                                            processor.price_blocks, 
+                                                processor.timestamp_blocks)
         agent = Agent(sess, logger, config, env)
         agent.train()
 
