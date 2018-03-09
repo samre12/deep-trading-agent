@@ -71,7 +71,7 @@ class Processor:
             block = data_block[['price_close', 'price_low', 'price_high', 'volume']]
             closing_prices = block['price_close']
 
-            diff_block = closing_prices.shift(-1):[:-1].subtract(closing_prices[:-1])
+            diff_block = closing_prices.shift(-1)[:-1].subtract(closing_prices[:-1])
 
             # currently normalizing the prices by previous prices of the same category
             normalized_block = block.shift(-1)[:-1].truediv(block[:-1])        

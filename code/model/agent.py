@@ -23,7 +23,7 @@ from utils.util import print_and_log_message, print_and_log_message_list
 class Agent(BaseAgent):
     '''Deep Trading Agent based on Deep Q Learning'''
     '''TODO: 
-        1. play
+        1. add `play` function to run tests in the simulated environment
     '''
 
     def __init__(self, sess, logger, config, env):
@@ -201,11 +201,13 @@ class Agent(BaseAgent):
             self.s_t = tf.placeholder(
                 dtype=tf.float32,
                 shape=[None, self.replay_memory.history_length, 
-                            self.replay_memory.num_channels]
+                            self.replay_memory.num_channels],
+                name=HISTORICAL_PRICES
             )
             self.trade_rem_t = tf.placeholder(
                 dtype=tf.float32,
-                shape=[None,]
+                shape=[None,],
+                name=TRADE_REM
             )
         self.q = DeepSense(params, self.logger, self.sess, self.config, name=Q_NETWORK)
         self.q.build_model((self.s_t, self.trade_rem_t))
@@ -215,11 +217,13 @@ class Agent(BaseAgent):
             self.t_s_t = tf.placeholder(
                 dtype=tf.float32,
                 shape=[None, self.replay_memory.history_length, 
-                            self.replay_memory.num_channels]
+                            self.replay_memory.num_channels],
+                name=HISTORICAL_PRICES
             )
             self.t_trade_rem_t = tf.placeholder(
                 dtype=tf.float32,
-                shape=[None,]
+                shape=[None,],
+                name=TRADE_REM
             )
         self.t_q = DeepSense(params, self.logger, self.sess, self.config, name=T_Q_NETWORK)
         self.t_q.build_model((self.t_s_t, self.t_trade_rem_t), train=False)

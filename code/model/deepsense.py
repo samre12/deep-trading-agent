@@ -162,7 +162,8 @@ class DeepSense:
             ''' 
             Append the information regarding the number of trades left in the episode
             '''
-            output = tf.stack([output, trade_rem], axis=0)
+            trade_rem = tf.expand_dims(trade_rem, axis=1)
+            output = tf.concat([output, trade_rem], axis=1)
 
             with tf.variable_scope(FULLY_CONNECTED, reuse=reuse):
                 num_dense_layers = len(self.params.dense_layer_sizes)

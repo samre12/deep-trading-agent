@@ -13,7 +13,7 @@ class BaseAgent(object):
 
     def __init__(self, config, logger):
         self.logger = logger
-        self._checkpoint_dir = os.path.join("checkpoints", config[SAVE_DIR])
+        self._checkpoint_dir = os.path.join(config[SAVE_DIR], 'checkpoints/')
         if not os.path.exists(self._checkpoint_dir):
             os.makedirs(self._checkpoint_dir)
 

@@ -26,7 +26,7 @@ def main(config_file_path):
                                             processor.price_blocks, 
                                                 processor.timestamp_blocks)
         agent = Agent(sess, logger, config, env)
-        agent.train()
+        # agent.train()
 
         agent.summary_writer.close()
 
