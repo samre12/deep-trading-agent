@@ -117,7 +117,7 @@ class Agent(BaseAgent):
                             'episode.max reward': max_ep_reward,
                             'episode.min reward': min_ep_reward,
                             'episode.avg reward': avg_ep_reward,
-                            'episode.num of game': num_episodes,
+                            'episode.num of episodes': num_episodes,
                             'episode.rewards': ep_rewards,
                             'episode.actions': actions,
                             'training.learning_rate': self.sess.run(
@@ -275,7 +275,7 @@ class Agent(BaseAgent):
         with tf.variable_scope(SUMMARY):
             scalar_summary_tags = ['average.reward', 'average.loss', 'average.q', \
                 'episode.max reward', 'episode.min reward', 'episode.avg reward', \
-                'episode.num of game', 'training.learning_rate']            
+                'episode.num of episodes', 'training.learning_rate']            
 
             self.summary_placeholders = {}
             self.summary_ops = {}

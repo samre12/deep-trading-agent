@@ -54,14 +54,14 @@ class DeepSense:
                                 reuse=reuse,
                                 scale=True)
 
-    def conv2d_layer(self, inputs, filter_size, kernel_size, name, reuse):
+    def conv2d_layer(self, inputs, filter_size, kernel_size, name, reuse, activation=None):
         return tf.layers.conv2d(
                         inputs=inputs,
                         filters=filter_size,
                         kernel_size=[1, kernel_size],
                         strides=(1, 1),
                         padding='valid',
-                        activation=None,
+                        activation=activation,
                         name=name,
                         reuse=reuse
                     )
@@ -70,7 +70,7 @@ class DeepSense:
         output = tf.layers.dense(
                         inputs=inputs,
                         units=num_units,
-                        activation=None,
+                        activation=activation,
                         name=name,
                         reuse=reuse
                     )
@@ -122,7 +122,7 @@ class DeepSense:
                         inputs = self.conv2d_layer(inputs, self.params.filter_sizes[i], 
                                                     self.params.kernel_sizes[i], 
                                                     CONV_.format(i + 1), 
-                                                    reuse)
+                                                    reuse)                        
                         inputs = self.batch_norm_layer(inputs, self.phase, 
                                                         BATCH_NORM_.format(i + 1), reuse)
                                                         
@@ -131,7 +131,7 @@ class DeepSense:
                         inputs = self.dropout_conv_layer(inputs, self.phase, 
                                                     self.params.conv_keep_prob, 
                                                     DROPOUT_CONV_.format(i + 1))
-            
+                                    
             input_shape = tf.shape(inputs)
             inputs = tf.reshape(inputs, shape=[self.batch_size, self.params.split_size, 
                                                 window_size * self.params.filter_sizes[-1]])
@@ -142,7 +142,7 @@ class DeepSense:
                 cell = tf.contrib.rnn.GRUCell(
                     num_units=self.params.gru_cell_size,
                     reuse=reuse
-                )
+                )                
                 if train:
                     cell = tf.contrib.rnn.DropoutWrapper(
                         cell, output_keep_prob=self.params.gru_keep_prob
@@ -170,7 +170,7 @@ class DeepSense:
                 for i in range(0, num_dense_layers):
                     with tf.variable_scope(DENSE_LAYER_.format(i + 1), reuse=reuse):
                         output = self.dense_layer(output, self.params.dense_layer_sizes[i], 
-                                                    DENSE_.format(i + 1), reuse)
+                                                    DENSE_.format(i + 1), reuse)                    
                         output = self.batch_norm_layer(output, self.phase, 
                                                         BATCH_NORM_.format(i + 1), reuse)
                         output = tf.nn.relu(output)
@@ -178,7 +178,7 @@ class DeepSense:
                         output = self.dropout_dense_layer(output, self.phase, 
                                                     self.params.dense_keep_prob,
                                                     DROPOUT_DENSE_.format(i + 1))
-
+                        
             self._values = self.dense_layer(output, self.params.num_actions, Q_VALUES, reuse)
             
             with tf.name_scope(AVG_Q_SUMMARY):
