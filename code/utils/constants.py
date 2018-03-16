@@ -1,3 +1,6 @@
+#Global
+PARENT_DIR = "PARENT_DIR"
+
 #Logging
 LOG_FILE = "LOG_FILE"
 SAVE_DIR = "SAVE_DIR"
@@ -39,6 +42,7 @@ CONVOLUTION = "convolution"
 DATASET = "dataset"
 DENSE = "dense"
 DROPOUT = "dropout"
+GLOBAL = "global"
 GRU = "gru"
 LOGGING = "logging"
 PREPROCESSING = "preprocessing"

@@ -1,3 +1,6 @@
+[global]
+PARENT_DIR = 
+
 [logging]
 LOG_FILE = 
 SAVE_DIR = 
