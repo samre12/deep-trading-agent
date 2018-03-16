@@ -18,7 +18,6 @@ from model.util import clipped_error
 
 from utils.constants import *
 from utils.strings import *
-from utils.util import print_and_log_message, print_and_log_message_list
                         
 class Agent(BaseAgent):
     '''Deep Trading Agent based on Deep Q Learning'''
@@ -98,7 +97,7 @@ class Agent(BaseAgent):
 
                     message = 'avg_r: %.4f, avg_l: %.6f, avg_q: %3.6f, avg_ep_r: %.4f, max_ep_r: %.4f, min_ep_r: %.4f, # game: %d' \
                         % (avg_reward, avg_loss, avg_q, avg_ep_reward, max_ep_reward, min_ep_reward, num_episodes)
-                    print_and_log_message(message, self.logger)
+                    self.logger.info(message)
 
                     if max_avg_ep_reward * 0.9 <= avg_ep_reward:
                         self.sess.run(

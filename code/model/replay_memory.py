@@ -8,7 +8,6 @@ from model.util import save_npy, load_npy
 
 from utils.constants import *
 from utils.strings import *
-from utils.util import print_and_log_message, print_and_log_message_list
 
 class ReplayMemory:
     '''Memory buffer for experiance replay'''
@@ -43,7 +42,8 @@ class ReplayMemory:
 
     def add(self, screen, reward, action, terminal, trade_rem):
         if screen.shape != self.dims:
-            print_and_log_message(INVALID_TIMESTEP, self.logger)
+            self.logger.error(INVALID_TIMESTEP)
+            
         else:
             self.actions[self.current] = action
             self.rewards[self.current] = reward
@@ -55,7 +55,8 @@ class ReplayMemory:
 
     def getState(self, index):
         if self.count == 0:
-            print_and_log_message(REPLAY_MEMORY_ZERO, self.logger)
+            self.logger.error(REPLAY_MEMORY_ZERO)
+            
         else:
             index = index % self.count
             if index >= self.history_length - 1:
@@ -68,18 +69,18 @@ class ReplayMemory:
 
     def save(self):
         message = "Saving replay memory to {}".format(self._model_dir)
-        print_and_log_message(message, self.logger)
+        self.logger.info(message)
         for idx, (name, array) in enumerate(
             zip([ACTIONS, REWARDS, SCREENS, TERMINALS, TRADES_REM, PRESTATES, POSTSTATES],
                 [self.actions, self.rewards, self.screens, self.terminals, self.trades_rem, self.prestates, self.poststates])):
             save_npy(array, join(self._model_dir, name))
 
         message = "Replay memory successfully saved to {}".format(self._model_dir)
-        print_and_log_message(message, self.logger)
+        self.logger.info(message)
 
     def load(self):
         message = "Loading replay memory from {}".format(self._model_dir)
-        print_and_log_message(message, self.logger)
+        self.logger.info(message)
 
         for idx, (name, array) in enumerate(
             zip([ACTIONS, REWARDS, SCREENS, TERMINALS, TRADES_REM, PRESTATES, POSTSTATES],
@@ -87,7 +88,7 @@ class ReplayMemory:
             array = load_npy(join(self._model_dir, name))
 
         message = "Replay memory successfully loaded from {}".format(self._model_dir)
-        print_and_log_message(message, self.logger)
+        self.logger.info(message)
 
     @property
     def model_dir(self):
@@ -96,7 +97,7 @@ class ReplayMemory:
     @property
     def sample(self):
         if self.count <= self.history_length:
-            print_and_log_message(REPLAY_MEMORY_INSUFFICIENT, self.logger)
+            self.logger.error(REPLAY_MEMORY_INSUFFICIENT)
         
         else:
             indexes = []

@@ -4,7 +4,6 @@ import numpy as np
 
 from utils.constants import *
 from utils.strings import *
-from utils.util import print_and_log_message
 
 class History:
     '''Experiance buffer of the behaniour policy of the agent'''
@@ -21,7 +20,8 @@ class History:
 
     def add(self, screen):
         if screen.shape != self.dims:
-            print_and_log_message(INVALID_TIMESTEP, self.logger)
+            self.logger.error(INVALID_TIMESTEP)
+            
         self._history[:-1] = self._history[1:]
         self._history[-1] = screen
 

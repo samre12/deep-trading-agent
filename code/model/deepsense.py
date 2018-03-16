@@ -2,7 +2,6 @@ import os
 from os.path import join
 import tensorflow as tf
 
-from utils.util import print_and_log_message, print_and_log_message_list
 from utils.constants import *
 from utils.strings import *
 

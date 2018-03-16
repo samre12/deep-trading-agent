@@ -3,7 +3,6 @@ import numpy as np
 
 from utils.constants import *
 from utils.strings import *
-from utils.util import print_and_log_message_list
 
 class Environment:
     '''Exchange Simulator for Bitcoin based upon per minute historical prices'''
@@ -56,7 +55,7 @@ class Environment:
             history.add(state)
             replay_memory.add(state, 0.0, 0, False, 0.0)
 
-        print_and_log_message_list(message_list, self.logger)
+        map(self.logger.debug, message_list)
 
         return 1.0
 
@@ -73,6 +72,9 @@ class Environment:
             self.short = self.short + 1
         
         reward = (self.long - self.short) * self.unit * self.diffs[self.current]
+        message = "Reward for timestep {} of episode number {} is {}".format(
+            self.timesteps, self.episode_number, reward
+        )
         self.timesteps = self.timesteps + 1
         if self.timesteps is not self.horizon:
             self.current = self.current + 1

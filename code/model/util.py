@@ -7,7 +7,6 @@ except:
 
 import tensorflow as tf
 
-from utils.util import print_and_log_message_list, print_and_log_message
 from utils.strings import *
 
 def clipped_error(x):
@@ -20,10 +19,10 @@ def clipped_error(x):
 def save_npy(obj, path, logger):
     np.save(path, obj)
     message = "  [*] saved at {}".format(path)
-    print_and_log_message(message, logger)
+    logger.info(message)
 
 def load_npy(path, logger):
     obj = np.load(path)
     message = "  [*] loaded from {}".format(path)
-    print_and_log_message(message, logger)
+    logger.info(message)
     return obj

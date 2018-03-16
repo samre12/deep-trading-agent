@@ -1,4 +1,5 @@
 from ConfigParser import ConfigParser
+import sys
 import logging
 
 from constants import *
@@ -10,25 +11,20 @@ def get_config_parser(filename):
     return config
 
 def get_logger(config):
-    logging.basicConfig(level=logging.DEBUG)
     formatter = \
         logging.Formatter('%(asctime)s - %(pathname)s - Line No %(lineno)s - Level %(levelname)s - %(message)s')
     info_handler = logging.FileHandler(config[LOG_FILE])
     info_handler.setLevel(logging.INFO)
     info_handler.setFormatter(formatter)
 
+    out_handler = logging.StreamHandler(sys.stdout)
+    out_handler.setLevel(logging.DEBUG)
+    out_handler.setFormatter(formatter)
+
     logger = logging.getLogger(name=DEEP_TRADING_AGENT)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     logger.addHandler(info_handler)
-    logger.propagate = False
+    
     return logger
 
-def print_and_log_message(message, logger):
-    logging.info(message)
-    logger.info(message)
-
-def print_and_log_message_list(message_list, logger):
-    for message in message_list:
-        logging.info(message)
-        logger.info(message)
         
