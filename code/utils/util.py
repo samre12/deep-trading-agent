@@ -11,20 +11,18 @@ def get_config_parser(filename):
     return config
 
 def get_logger(config):
-    formatter = \
-        logging.Formatter('%(asctime)s - %(pathname)s - Line No %(lineno)s - Level %(levelname)s - %(message)s')
+    formatter = logging.Formatter(logging.BASIC_FORMAT)   
     info_handler = logging.FileHandler(config[LOG_FILE])
-    info_handler.setLevel(logging.INFO)
+    info_handler.setLevel(logging.DEBUG)
     info_handler.setFormatter(formatter)
 
     out_handler = logging.StreamHandler(sys.stdout)
-    out_handler.setLevel(logging.DEBUG)
+    out_handler.setLevel(logging.INFO)
     out_handler.setFormatter(formatter)
 
     logger = logging.getLogger(name=DEEP_TRADING_AGENT)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.addHandler(info_handler)
+    logger.addHandler(out_handler)
     
     return logger
-
-        

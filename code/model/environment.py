@@ -72,9 +72,11 @@ class Environment:
             self.short = self.short + 1
         
         reward = (self.long - self.short) * self.unit * self.diffs[self.current]
-        message = "Reward for timestep {} of episode number {} is {}".format(
-            self.timesteps, self.episode_number, reward
+        message = "Timestep {}:==: Action: {} ; Reward: {}".format(
+            self.timesteps, self.action_dict[action], reward
         )
+        self.logger.debug(message)
+        
         self.timesteps = self.timesteps + 1
         if self.timesteps is not self.horizon:
             self.current = self.current + 1
