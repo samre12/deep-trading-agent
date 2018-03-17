@@ -23,7 +23,7 @@ class Environment:
             2: SHORT
         }
 
-        self.unit = 5e-5 #units of Bitcoin traded each time
+        self.unit = 5e-4 #units of Bitcoin traded each time
 
     def new_random_episode(self, history, replay_memory):
         '''
