@@ -13,7 +13,6 @@ For complete details of the dataset, preprocessing, network architecture and imp
 
 - Python 2.7
 - [Tensorflow](https://www.tensorflow.org/)
-- [TA-Lib](https://mrjbq7.github.io/ta-lib/) (for processing Bitcoin Price Series)
 - [Pandas](https://pandas.pydata.org) (for pre-processing Bitcoin Price Series)
 - [tqdm](https://pypi.python.org/pypi/tqdm) (for displaying progress of training)<br>
 
@@ -27,7 +26,7 @@ Please give a :star: to this repository to support the project :smile:.
 
 ### Docker Support
 
-- [ ] Add Docker support for a fast and easy start with the project
+- [X] Add Docker support for a fast and easy start with the project
 
 ### Improve Model performance
 
