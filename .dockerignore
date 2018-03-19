@@ -1,0 +1,8 @@
+.git
+.vscode
+/assets
+/data
+/logs
+LICENSE
+README.md
+.gitignore
