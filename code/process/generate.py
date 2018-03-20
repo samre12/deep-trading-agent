@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 
 def file_processor(data_file, target_file):
-    print 'Reading bitcoin market data file from here: {}.'.format(data_file)
+    print 'Reading bitcoin market data file from: {}.'.format(data_file)
     d = pd.read_table(data_file, sep=',', header=None, index_col=0, names=['price', 'volume'])    
     d.index = d.index.map(lambda ts: datetime.datetime.fromtimestamp(int(ts)))
     d.index.names = ['DateTime_UTC']

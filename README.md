@@ -18,6 +18,24 @@ For complete details of the dataset, preprocessing, network architecture and imp
 
 To setup a ubuntu virtual machine with all the dependencies to run the code, refer to [`assets/vm`](https://github.com/samre12/deep-trading-agent/tree/master/assets/vm).
 
+## Run with Docker
+
+To build the docker image, execute the command
+
+```bash
+docker build -t deep-trading-agent .
+```
+
+This will setup the repository for training the agent and
+
+- mount the current directory into `/deep-trading-agent` in the container
+
+- during image build, the latest transactions history from the exchange is pulled and sampled to create per-minute scale dataset of Bitcoin prices. This dataset is placed at `/deep-trading-agent/data/btc.csv`
+
+- to initiate training of the agent, specify suitable parameters in a config file (an example config file is provided at `/deep-trading-agent/code/config/config.cfg`) and run the code using `/deep-trading-agent/code/main.py`
+
+- training supports logging and monitoring through *Tensorboard*, port number *6006* of the container is exposed for the same
+
 ## Support
 
 Please give a :star: to this repository to support the project :smile:.

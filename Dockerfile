@@ -47,20 +47,19 @@ RUN pip --no-cache-dir install tensorflow==1.1.0
 # Create a sub-folder to contain all the code
 RUN mkdir deep-trading-agent
 
+# Add the entire repository content to a sub-folder
+COPY . /deep-trading-agent/
+
 # Download the latest dataset from the Bitcoincharts Archive
 RUN mkdir /deep-trading-agent/data
 RUN wget http://api.bitcoincharts.com/v1/csv/coinbaseUSD.csv.gz -P /deep-trading-agent/data/
 RUN gunzip /deep-trading-agent/data/coinbaseUSD.csv.gz
+RUN python2 /deep-trading-agent/code/preprocess.py --transactions /deep-trading-agent/data/coinbaseUSD.csv --dataset /deep-trading-agent/data/btc.csv 
+RUN rm /deep-trading-agent/data/coinbaseUSD.csv
 
 # Setup logging enviroment
-RUN mkdir /deep-trading-agent
-RUN mkdir /deep-trading-agent/logs
+RUN mkdir /deep-trading-agent/logs /deep-trading-agent/logs/saved_models /deep-trading-agent/logs/tensorboard
 RUN touch /deep-trading-agent/logs/run.log
-RUN mkdir /deep-trading-agent/logs/saved_models
-RUN mkdir /deep-trading-agent/logs/tensorboard
-
-# Add the entire repository content to a sub-folder
-COPY . /deep-trading-agent/
 
 # TensorBoard
 EXPOSE 6006
