@@ -2,6 +2,7 @@
 ACTION = "action"
 ACTIONS = "actions"
 DEEP_TRADING_AGENT = "deep_trading_agent"
+DROPOUT_KEEP_PROBS = "dropout_keep_probs"
 LONG = "long"
 NEUTRAL = "neutral"
 POSTSTATES = "poststates"

@@ -36,6 +36,8 @@ This will setup the repository for training the agent and
 
 - training supports logging and monitoring through *Tensorboard*, port number *6006* of the container is exposed for the same
 
+- `vim` and `screen` are installed in the container to edit the configuration files and run `tensorboard`
+
 ## Support
 
 Please give a :star: to this repository to support the project :smile:.

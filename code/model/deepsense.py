@@ -27,6 +27,10 @@ class DeepSense:
         return self._avg_q_summary
 
     @property
+    def params(self):
+        return self.params
+
+    @property
     def name(self):
         return self.__name__
 
@@ -45,6 +49,7 @@ class DeepSense:
                 self._weights[name] = variable
         return self._weights
 
+    '''
     def batch_norm_layer(self, inputs, train, name, reuse):
         return tf.layers.batch_normalization(
                                 inputs=inputs,
@@ -52,6 +57,7 @@ class DeepSense:
                                 name=name,
                                 reuse=reuse,
                                 scale=True)
+    '''
 
     def conv2d_layer(self, inputs, filter_size, kernel_size, name, reuse, activation=None):
         return tf.layers.conv2d(
@@ -75,27 +81,25 @@ class DeepSense:
                     )
         return output
 
-    def dropout_conv_layer(self, inputs, train, keep_prob, name):
-        channels = tf.shape(inputs)[-1]
-        return tf.layers.dropout(
-                        inputs=inputs,
-                        rate=keep_prob,
-                        training=train,
-                        name=name,
-                        noise_shape=[
-                            self.batch_size, 1, 1, channels
-                        ]
-                    )
-
-    def dropout_dense_layer(self, inputs, train, keep_prob, name):
-        return tf.layers.dropout(
-                        inputs=inputs,
-                        rate=keep_prob,
-                        training=train,
+    def dropout_layer(self, inputs, keep_prob, name, is_conv=False):
+        if is_conv:
+            channels = tf.shape(inputs)[-1]
+            return tf.nn.dropout(
+                            inputs,
+                            keep_prob=keep_prob,
+                            name=name,
+                            noise_shape=[
+                                self.batch_size, 1, 1, channels
+                            ]
+                        )
+        else:
+            return tf.nn.dropout(
+                        inputs,
+                        keep_prob=keep_prob,
                         name=name
                     )        
 
-    def build_model(self, state, train=True, reuse=False):
+    def build_model(self, state, reuse=False):
         inputs = state[0]
         trade_rem = state[1]
         with tf.variable_scope(self.__name__, reuse=reuse):
@@ -123,16 +127,11 @@ class DeepSense:
                                                     CONV_.format(i + 1), 
                                                     reuse,
                                                     activation=tf.nn.relu)
-                        '''                        
-                        inputs = self.batch_norm_layer(inputs, self.phase, 
-                                                        BATCH_NORM_.format(i + 1), reuse)
-                                                        
-                        inputs = tf.nn.relu(inputs)
-
-                        inputs = self.dropout_conv_layer(inputs, self.phase, 
-                                                    self.params.conv_keep_prob, 
-                                                    DROPOUT_CONV_.format(i + 1))
-                        '''
+                                                
+                        inputs = self.dropout_layer(inputs,
+                                                    self.params.dropoutkeepprobs.conv_keep_prob, 
+                                                    DROPOUT_CONV_.format(i + 1),
+                                                    is_conv=True)
                                     
             input_shape = tf.shape(inputs)
             inputs = tf.reshape(inputs, shape=[self.batch_size, self.params.split_size, 
@@ -145,12 +144,14 @@ class DeepSense:
                     num_units=self.params.gru_cell_size,
                     reuse=reuse
                 )        
-                '''        
-                if train:
-                    cell = tf.contrib.rnn.DropoutWrapper(
-                        cell, output_keep_prob=self.params.gru_keep_prob
-                    )
-                '''
+                
+                cell = tf.contrib.rnn.DropoutWrapper(
+                    cell, 
+                    output_keep_prob=self.params.dropoutkeepprobs.gru_keep_prob,
+                    variational_recurrent=True,
+                    dtype=tf.float32
+                )
+                
                 gru_cells.append(cell)
 
             multicell = tf.contrib.rnn.MultiRNNCell(gru_cells)
@@ -175,15 +176,11 @@ class DeepSense:
                     with tf.variable_scope(DENSE_LAYER_.format(i + 1), reuse=reuse):
                         output = self.dense_layer(output, self.params.dense_layer_sizes[i], 
                                                     DENSE_.format(i + 1), reuse, activation=tf.nn.relu)                    
-                        '''
-                        output = self.batch_norm_layer(output, self.phase, 
-                                                        BATCH_NORM_.format(i + 1), reuse)
-                        output = tf.nn.relu(output)
                         
-                        output = self.dropout_dense_layer(output, self.phase, 
-                                                    self.params.dense_keep_prob,
+                        output = self.dropout_layer(output,
+                                                    self.params.dropoutkeepprobs.dense_keep_prob,
                                                     DROPOUT_DENSE_.format(i + 1))
-                        '''
+                        
                         
             self._values = self.dense_layer(output, self.params.num_actions, Q_VALUES, reuse)
             
