@@ -5,6 +5,7 @@
 [![dep2](https://img.shields.io/badge/python-2.7-red.svg)](https://www.python.org/download/releases/2.7/)
 [![dep3](https://img.shields.io/badge/status-in%20progress-green.svg)](https://github.com/samre12/deep-trading-agent/)
 [![dep4](https://img.shields.io/circleci/project/github/RedSparr0w/node-csgo-parser.svg)](https://github.com/samre12/deep-trading-agent/)
+[![dep4](https://img.shields.io/badge/docker%20image-available-ff69b4.svg)](https://cloud.docker.com/app/samre12/repository/docker/samre12/deep-trading-agent/builds)
 <br>
 Deep Reinforcement Learning based Trading Agent for Bitcoin using [DeepSense](https://arxiv.org/abs/1611.01942) Network for Q function approximation. <br><br>
 ![model](assets/schema/CompleteSchema.png)
