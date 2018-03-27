@@ -20,10 +20,20 @@ To setup a ubuntu virtual machine with all the dependencies to run the code, ref
 
 ## Run with Docker
 
-To build the docker image, execute the command
+Pull the prebuilt docker image directly from docker hub and run it as
+
+```bash
+docker pull samre12/deep-trading-agent:latest
+docker run -p 6006:6006 -it samre12/deep-trading-agent:latest
+```
+
+**OR**<br>
+
+Build the docker image locally by executing the command and the run the image as
 
 ```bash
 docker build -t deep-trading-agent .
+docker run -p 6006:6006 -it deep-trading-agent
 ```
 
 This will setup the repository for training the agent and
@@ -34,9 +44,11 @@ This will setup the repository for training the agent and
 
 - to initiate training of the agent, specify suitable parameters in a config file (an example config file is provided at `/deep-trading-agent/code/config/config.cfg`) and run the code using `/deep-trading-agent/code/main.py`
 
-- training supports logging and monitoring through *Tensorboard*, port number *6006* of the container is exposed for the same
+- training supports logging and monitoring through *Tensorboard*
 
 - `vim` and `screen` are installed in the container to edit the configuration files and run `tensorboard`
+
+- bind port *6006* of container to *6006* of host machine to monitor training using *Tensorboard*
 
 ## Support
 
