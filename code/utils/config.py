@@ -21,8 +21,6 @@ def get_config(config_parser):
                                                     config_parser.get(LOGGING, TENSORBOARD_LOG_DIR))
 
     #Preprocessing Dataset
-    config[TRANSACTIONS_FILE] = add_parent_dir(config[PARENT_DIR], 
-                                                config_parser.get(PREPROCESSING, TRANSACTIONS_FILE))
     config[DATASET_PATH] = add_parent_dir(config[PARENT_DIR], 
                                             config_parser.get(PREPROCESSING, DATASET_PATH))
 

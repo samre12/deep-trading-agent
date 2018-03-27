@@ -13,11 +13,42 @@ For complete details of the dataset, preprocessing, network architecture and imp
 
 - Python 2.7
 - [Tensorflow](https://www.tensorflow.org/)
-- [TA-Lib](https://mrjbq7.github.io/ta-lib/) (for processing Bitcoin Price Series)
 - [Pandas](https://pandas.pydata.org) (for pre-processing Bitcoin Price Series)
 - [tqdm](https://pypi.python.org/pypi/tqdm) (for displaying progress of training)<br>
 
 To setup a ubuntu virtual machine with all the dependencies to run the code, refer to [`assets/vm`](https://github.com/samre12/deep-trading-agent/tree/master/assets/vm).
+
+## Run with Docker
+
+Pull the prebuilt docker image directly from docker hub and run it as
+
+```bash
+docker pull samre12/deep-trading-agent:latest
+docker run -p 6006:6006 -it samre12/deep-trading-agent:latest
+```
+
+**OR**<br>
+
+Build the docker image locally by executing the command and the run the image as
+
+```bash
+docker build -t deep-trading-agent .
+docker run -p 6006:6006 -it deep-trading-agent
+```
+
+This will setup the repository for training the agent and
+
+- mount the current directory into `/deep-trading-agent` in the container
+
+- during image build, the latest transactions history from the exchange is pulled and sampled to create per-minute scale dataset of Bitcoin prices. This dataset is placed at `/deep-trading-agent/data/btc.csv`
+
+- to initiate training of the agent, specify suitable parameters in a config file (an example config file is provided at `/deep-trading-agent/code/config/config.cfg`) and run the code using `/deep-trading-agent/code/main.py`
+
+- training supports logging and monitoring through *Tensorboard*
+
+- `vim` and `screen` are installed in the container to edit the configuration files and run `tensorboard`
+
+- bind port *6006* of container to *6006* of host machine to monitor training using *Tensorboard*
 
 ## Support
 
@@ -27,7 +58,7 @@ Please give a :star: to this repository to support the project :smile:.
 
 ### Docker Support
 
-- [ ] Add Docker support for a fast and easy start with the project
+- [X] Add Docker support for a fast and easy start with the project
 
 ### Improve Model performance
 

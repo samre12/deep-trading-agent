@@ -10,7 +10,7 @@ import numpy as np
 
 from model.baseagent import BaseAgent
 from model.deepsense import DeepSense
-from model.deepsenseparams import DeepSenseParams
+from model.deepsenseparams import DeepSenseParams, DropoutKeepProbs
 from model.environment import Environment
 from model.history import History
 from model.replay_memory import ReplayMemory
@@ -146,7 +146,14 @@ class Agent(BaseAgent):
         else:
             action = self.sess.run(
                 fetches=self.q.action,
-                feed_dict={self.q.phase: 0,  self.s_t: [s_t], self.trade_rem_t: [trade_rem_t]}
+                feed_dict={
+                    self.q.phase: 0,  
+                    self.s_t: [s_t], 
+                    self.trade_rem_t: [trade_rem_t],
+                    self.q_conv_keep_prob: 1.0,
+                    self.q_dense_keep_prob: 1.0,
+                    self.q_gru_keep_prob: 1.0
+                }
             )[0]
 
         return action
@@ -173,7 +180,11 @@ class Agent(BaseAgent):
             
             q_t_plus_1 = self.sess.run(
                 fetches=self.t_q.values,
-                feed_dict={self.t_q.phase: 0, self.t_s_t: s_t_plus_1, self.t_trade_rem_t: trade_rem_t_plus_1}
+                feed_dict={
+                    self.t_q.phase: 0, 
+                    self.t_s_t: s_t_plus_1, 
+                    self.t_trade_rem_t: trade_rem_t_plus_1
+                }
             )
 
             max_q_t_plus_1 = np.max(q_t_plus_1, axis=1)
@@ -187,8 +198,11 @@ class Agent(BaseAgent):
                 self.action: action,
                 self.s_t: s_t,
                 self.trade_rem_t: trade_rem_t,
-                self.learning_rate_step: self.step,
-                })
+                self.q_conv_keep_prob: self.config[CONV_KEEP_PROB],
+                self.q_dense_keep_prob: self.config[DENSE_KEEP_PROB],
+                self.q_gru_keep_prob: self.config[GRU_KEEP_PROB],
+                self.learning_rate_step: self.step
+            })
 
             self.summary_writer.add_summary(avg_q_summary, self.step)
             self.total_loss += loss
@@ -208,9 +222,19 @@ class Agent(BaseAgent):
                 shape=[None,],
                 name=TRADE_REM
             )
+            
+            with tf.variable_scope(DROPOUT_KEEP_PROBS):
+                self.q_conv_keep_prob = tf.placeholder(tf.float32)
+                self.q_dense_keep_prob = tf.placeholder(tf.float32)
+                self.q_gru_keep_prob = tf.placeholder(tf.float32)
+
+        params.dropoutkeepprobs = DropoutKeepProbs(
+                    self.q_conv_keep_prob,
+                    self.q_dense_keep_prob,
+                    self.q_gru_keep_prob
+                )
         self.q = DeepSense(params, self.logger, self.sess, self.config, name=Q_NETWORK)
         self.q.build_model((self.s_t, self.trade_rem_t))
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
         with tf.variable_scope(TARGET):
             self.t_s_t = tf.placeholder(
@@ -224,8 +248,10 @@ class Agent(BaseAgent):
                 shape=[None,],
                 name=TRADE_REM
             )
+
+        params.dropoutkeepprobs = DropoutKeepProbs()
         self.t_q = DeepSense(params, self.logger, self.sess, self.config, name=T_Q_NETWORK)
-        self.t_q.build_model((self.t_s_t, self.t_trade_rem_t), train=False)
+        self.t_q.build_model((self.t_s_t, self.t_trade_rem_t))
 
         with tf.variable_scope(UPDATE_TARGET_NETWORK):
             self.q_weights_placeholders = {}
@@ -267,9 +293,8 @@ class Agent(BaseAgent):
                         self.learning_rate_decay,
                         staircase=True))
 
-                with tf.control_dependencies(update_ops):
-                    self.optimizer = tf.train.RMSPropOptimizer(
-                        self.learning_rate_op, momentum=0.95, epsilon=0.01).minimize(self.loss)
+                self.optimizer = tf.train.RMSPropOptimizer(
+                    self.learning_rate_op, momentum=0.95, epsilon=0.01).minimize(self.loss)
 
         with tf.variable_scope(SUMMARY):
             scalar_summary_tags = ['average.reward', 'average.loss', 'average.q', \

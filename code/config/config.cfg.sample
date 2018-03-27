@@ -7,7 +7,6 @@ SAVE_DIR =
 TENSORBOARD_LOG_DIR = 
 
 [preprocessing]
-TRANSACTIONS_FILE = 
 DATASET_PATH = 
 
 [dataset]
