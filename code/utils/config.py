@@ -42,6 +42,7 @@ def get_config(config_parser):
     #Convolution Layer Parameters
     config[FILTER_SIZES] = json.loads(config_parser.get(CONVOLUTION, FILTER_SIZES))
     config[KERNEL_SIZES] = json.loads(config_parser.get(CONVOLUTION, KERNEL_SIZES))
+    config[PADDING] = config_parser.get(CONVOLUTION, PADDING)
 
     #GRUCell Parameters
     config[GRU_CELL_SIZE] = int(config_parser.get(GRU, GRU_CELL_SIZE))

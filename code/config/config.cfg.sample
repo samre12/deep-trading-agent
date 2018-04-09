@@ -27,6 +27,7 @@ GRU_KEEP_PROB =
 [convolution]
 FILTER_SIZES = 
 KERNEL_SIZES = 
+PADDING = 
 
 [gru]
 GRU_CELL_SIZE = 

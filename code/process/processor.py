@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from talib.abstract import *
 
 from utils.constants import *
 from utils.strings import *

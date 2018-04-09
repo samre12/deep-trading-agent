@@ -59,13 +59,13 @@ class DeepSense:
                                 scale=True)
     '''
 
-    def conv2d_layer(self, inputs, filter_size, kernel_size, name, reuse, activation=None):
+    def conv2d_layer(self, inputs, filter_size, kernel_size, padding, name, reuse, activation=None):
         return tf.layers.conv2d(
                         inputs=inputs,
                         filters=filter_size,
                         kernel_size=[1, kernel_size],
                         strides=(1, 1),
-                        padding='valid',
+                        padding=padding,
                         activation=activation,
                         name=name,
                         reuse=reuse
@@ -124,6 +124,7 @@ class DeepSense:
                         window_size = window_size - self.params.kernel_sizes[i] + 1
                         inputs = self.conv2d_layer(inputs, self.params.filter_sizes[i], 
                                                     self.params.kernel_sizes[i], 
+                                                    self.params.padding,
                                                     CONV_.format(i + 1), 
                                                     reuse,
                                                     activation=tf.nn.relu)
@@ -133,9 +134,22 @@ class DeepSense:
                                                     DROPOUT_CONV_.format(i + 1),
                                                     is_conv=True)
                                     
-            input_shape = tf.shape(inputs)
-            inputs = tf.reshape(inputs, shape=[self.batch_size, self.params.split_size, 
-                                                window_size * self.params.filter_sizes[-1]])
+            if self.params.padding is VALID:
+                inputs = tf.reshape(inputs, 
+                                    shape=[
+                                            self.batch_size, 
+                                            self.params.split_size, 
+                                            window_size * self.params.filter_sizes[-1]
+                                        ]
+                            )
+            else:
+                inputs = tf.reshape(inputs, 
+                                    shape=[
+                                            self.batch_size, 
+                                            self.params.split_size, 
+                                            self.params.window_size * self.params.filter_sizes[-1]
+                                        ]
+                            )
             # self.debug2 = inputs
 
             gru_cells = []

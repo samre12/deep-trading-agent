@@ -24,6 +24,7 @@ class DeepSenseParams:
         #Convolution Layer Parameters
         self.filter_sizes = config[FILTER_SIZES]
         self.kernel_sizes = config[KERNEL_SIZES]
+        self.padding = config[PADDING]
 
         #GRU Parameters
         self.gru_cell_size = config[GRU_CELL_SIZE]
