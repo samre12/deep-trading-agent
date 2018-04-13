@@ -134,7 +134,7 @@ class DeepSense:
                                                     DROPOUT_CONV_.format(i + 1),
                                                     is_conv=True)
                                     
-            if self.params.padding is VALID:
+            if self.params.padding == VALID:
                 inputs = tf.reshape(inputs, 
                                     shape=[
                                             self.batch_size, 
