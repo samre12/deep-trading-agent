@@ -7,6 +7,7 @@ LABEL maintainer="Craig Citro <craigcitro@google.com>"
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         curl \
+        git \
         libfreetype6-dev \
         libpng12-dev \
         libzmq3-dev \
