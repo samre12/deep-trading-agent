@@ -55,7 +55,7 @@ COPY . /deep-trading-agent/
 
 # Setup samre12/gym_cryptotrading for using different environments to train the agent
 RUN git clone https://github.com/samre12/gym-cryptotrading.git
-RUN pip install -e ./gym_cryptotrading/
+RUN pip install -e ./gym-cryptotrading/
 
 # Setup logging enviroment
 RUN mkdir /deep-trading-agent/logs /deep-trading-agent/logs/saved_models /deep-trading-agent/logs/tensorboard
