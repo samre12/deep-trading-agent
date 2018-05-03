@@ -24,6 +24,10 @@ class History:
             
         self._history[:-1] = self._history[1:]
         self._history[-1] = screen
+    
+    def set_history(self, state):
+        for screen in state:
+            self.add(screen)
 
     @property
     def history(self):

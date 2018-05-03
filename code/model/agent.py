@@ -11,7 +11,6 @@ import numpy as np
 from model.baseagent import BaseAgent
 from model.deepsense import DeepSense
 from model.deepsenseparams import DeepSenseParams, DropoutKeepProbs
-from model.environment import Environment
 from model.history import History
 from model.replay_memory import ReplayMemory
 from model.util import clipped_error
@@ -47,6 +46,9 @@ class Agent(BaseAgent):
     def summary_writer(self):
         return self._summary_writer
 
+    def trade_rem_ratio(self, trade_rem):
+        return (trade_rem / self.config[HORIZON])
+    
     def train(self):
         start_step = self.sess.run(self.step_op)
 
@@ -55,7 +57,10 @@ class Agent(BaseAgent):
         max_avg_ep_reward = 0
         ep_rewards, actions = [], []
 
-        trade_rem = self.env.new_random_episode(self.history, self.replay_memory)
+        trade_rem = 1.0
+        state = self.env.reset()
+        self.history.set_history(state)
+        self.replay_memory.set_history(state)
 
         for self.step in tqdm(range(start_step, self.max_step), ncols=70, initial=start_step):
             if self.step == self.learn_start:
@@ -66,12 +71,17 @@ class Agent(BaseAgent):
             # 1. predict
             action = self.predict((self.history.history, trade_rem))
             # 2. act
-            screen, reward, terminal, trade_rem = self.env.act(action)
+            screen, reward, terminal, rem = self.env.step(action)
+            trade_rem = self.trade_rem_ratio(rem)
             # 3. observe
             self.observe(screen, reward, action, terminal, trade_rem)
 
             if terminal:
-                self.env.new_random_episode(self.history, self.replay_memory)
+                trade_rem = 1.0
+                state = self.env.reset()
+                self.history.set_history(state)
+                self.replay_memory.set_history(state)
+                
                 num_episodes += 1
                 ep_rewards.append(ep_reward)
                 ep_reward = 0.

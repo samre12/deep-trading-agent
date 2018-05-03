@@ -52,12 +52,9 @@ RUN mkdir deep-trading-agent
 # Add the entire repository content to a sub-folder
 COPY . /deep-trading-agent/
 
-# Download the latest dataset from the Bitcoincharts Archive
-RUN mkdir /deep-trading-agent/data
-RUN wget http://api.bitcoincharts.com/v1/csv/coinbaseUSD.csv.gz -P /deep-trading-agent/data/
-RUN gunzip /deep-trading-agent/data/coinbaseUSD.csv.gz
-RUN python2 /deep-trading-agent/code/preprocess.py --transactions /deep-trading-agent/data/coinbaseUSD.csv --dataset /deep-trading-agent/data/btc.csv 
-RUN rm /deep-trading-agent/data/coinbaseUSD.csv
+# Setup samre12/gym_cryptotrading for using different environments to train the agent
+RUN git clone https://github.com/samre12/gym-cryptotrading.git
+RUN pip install -e ./gym_cryptotrading/
 
 # Setup logging enviroment
 RUN mkdir /deep-trading-agent/logs /deep-trading-agent/logs/saved_models /deep-trading-agent/logs/tensorboard

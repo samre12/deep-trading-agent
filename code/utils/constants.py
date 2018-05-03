@@ -6,9 +6,6 @@ LOG_FILE = "LOG_FILE"
 SAVE_DIR = "SAVE_DIR"
 TENSORBOARD_LOG_DIR = "TENSORBOARD_LOG_DIR"
 
-#Preprocessing Dataset
-DATASET_PATH = "DATASET_PATH"
-
 #DeepSense Parameters
 ##Dataset Parameters
 BATCH_SIZE = "BATCH_SIZE"

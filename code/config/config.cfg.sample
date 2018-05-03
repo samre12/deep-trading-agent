@@ -6,9 +6,6 @@ LOG_FILE =
 SAVE_DIR = 
 TENSORBOARD_LOG_DIR = 
 
-[preprocessing]
-DATASET_PATH = 
-
 [dataset]
 BATCH_SIZE = 
 HISTORY_LENGTH = 

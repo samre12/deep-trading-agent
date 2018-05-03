@@ -90,6 +90,10 @@ class ReplayMemory:
         message = "Replay memory successfully loaded from {}".format(self._model_dir)
         self.logger.info(message)
 
+    def set_history(self, state):
+        for screen in state:
+            self.add(screen, 0.0, 0, False, 0.0)
+
     @property
     def model_dir(self):
         return self._model_dir

@@ -20,10 +20,6 @@ def get_config(config_parser):
     config[TENSORBOARD_LOG_DIR] = add_parent_dir(config[PARENT_DIR], 
                                                     config_parser.get(LOGGING, TENSORBOARD_LOG_DIR))
 
-    #Preprocessing Dataset
-    config[DATASET_PATH] = add_parent_dir(config[PARENT_DIR], 
-                                            config_parser.get(PREPROCESSING, DATASET_PATH))
-
     #Dataset Parameters
     config[BATCH_SIZE] = int(config_parser.get(DATASET, BATCH_SIZE))
     config[HISTORY_LENGTH] = int(config_parser.get(DATASET, HISTORY_LENGTH))
