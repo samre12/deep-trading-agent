@@ -76,6 +76,8 @@ class Agent(BaseAgent):
             # 3. observe
             self.observe(screen, reward, action, terminal, trade_rem)
 
+            ep_reward += reward
+            
             if terminal:
                 trade_rem = 1.0
                 state = self.env.reset()
@@ -85,9 +87,6 @@ class Agent(BaseAgent):
                 num_episodes += 1
                 ep_rewards.append(ep_reward)
                 ep_reward = 0.
-
-            else:
-                ep_reward += reward
 
             actions.append(action)
             total_reward += reward

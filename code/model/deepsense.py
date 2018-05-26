@@ -49,16 +49,6 @@ class DeepSense:
                 self._weights[name] = variable
         return self._weights
 
-    '''
-    def batch_norm_layer(self, inputs, train, name, reuse):
-        return tf.layers.batch_normalization(
-                                inputs=inputs,
-                                training=train,
-                                name=name,
-                                reuse=reuse,
-                                scale=True)
-    '''
-
     def conv2d_layer(self, inputs, filter_size, kernel_size, padding, name, reuse, activation=None):
         return tf.layers.conv2d(
                         inputs=inputs,
