@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install TA-lib source 
 RUN wget --no-check-certificate  http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
         tar -xzf ta-lib-0.4.0-src.tar.gz && \ 
-        rm ta-lib-0.4.0-src.tar.gz \
+        rm ta-lib-0.4.0-src.tar.gz && \
         ta-lib/configure --prefix=/usr
 CMD ta-lib/make && \ 
         sudo ta-lib/make install
