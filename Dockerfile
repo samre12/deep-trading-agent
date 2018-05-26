@@ -28,9 +28,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN wget --no-check-certificate  http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
         tar -xzf ta-lib-0.4.0-src.tar.gz && \ 
         rm ta-lib-0.4.0-src.tar.gz && \
-        ta-lib/configure --prefix=/usr
-CMD ta-lib/make && \ 
-        sudo ta-lib/make install
+        (cd ta-lib && ./configure)
+RUN (cd ta-lib && make) && \
+        (cd ta-lib && sudo make install)
         
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
