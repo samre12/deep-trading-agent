@@ -17,6 +17,7 @@ For complete details of the input time series, network architecture and implemen
 - Python 2.7
 - [Tensorflow](https://www.tensorflow.org/)
 - [Pandas](https://pandas.pydata.org) (for pre-processing Bitcoin Price Series)
+- [TA-lib](https://github.com/mrjbq7/ta-lib) (for computing technical indicators over Bitcoin Price Series)
 - [tqdm](https://pypi.python.org/pypi/tqdm) (for displaying progress of training)
 - [samre12/gym_cryptotrading](https://github.com/samre12/gym-cryptotrading/) (for different trading environments)
 

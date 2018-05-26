@@ -24,6 +24,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install TA-lib source 
+RUN wget --no-check-certificate  http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
+        tar -xzf ta-lib-0.4.0-src.tar.gz && \ 
+        rm ta-lib-0.4.0-src.tar.gz \
+        ta-lib/configure --prefix=/usr
+CMD ta-lib/make && \ 
+        sudo ta-lib/make install
+        
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py && \
     rm get-pip.py
@@ -36,6 +44,7 @@ RUN pip --no-cache-dir install \
         pandas \
         scipy \
         sklearn \
+        TA-lib \
         tqdm 
 
 #Install tensorflow version "1.1.0"
