@@ -3,6 +3,9 @@ FROM ubuntu:14.04
 
 LABEL maintainer="Craig Citro <craigcitro@google.com>"
 
+# TensorBoard
+EXPOSE 6006
+
 # Pick up some TF dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -47,8 +50,8 @@ RUN pip --no-cache-dir install \
         TA-lib \
         tqdm 
 
-#Install tensorflow version "1.1.0"
-RUN pip --no-cache-dir install tensorflow==1.1.0
+# Install latest version of Tensorflow
+RUN pip --no-cache-dir install tensorflow
         
 # --- DO NOT EDIT OR DELETE BETWEEN THE LINES --- #
 # These lines will be edited automatically by parameterized_docker_build.sh. #
@@ -59,9 +62,6 @@ RUN pip --no-cache-dir install tensorflow==1.1.0
 # Create a sub-folder to contain all the code
 RUN mkdir deep-trading-agent
 
-# Add the entire repository content to a sub-folder
-COPY . /deep-trading-agent/
-
 # Setup samre12/gym_cryptotrading for using different environments to train the agent
 RUN git clone https://github.com/samre12/gym-cryptotrading.git
 RUN pip install -e ./gym-cryptotrading/
@@ -70,5 +70,5 @@ RUN pip install -e ./gym-cryptotrading/
 RUN mkdir /deep-trading-agent/logs /deep-trading-agent/logs/saved_models /deep-trading-agent/logs/tensorboard
 RUN touch /deep-trading-agent/logs/run.log
 
-# TensorBoard
-EXPOSE 6006
+# Add the entire repository content to a sub-folder
+COPY . /deep-trading-agent/
