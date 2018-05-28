@@ -2,10 +2,10 @@ import os
 from os.path import join
 import tensorflow as tf
 
-from utils.constants import *
-from utils.strings import *
+from agent.model.deepsenseparams import DeepSenseParams
 
-from model.deepsenseparams import DeepSenseParams
+from agent.utils.constants import *
+from agent.utils.strings import *
 
 class DeepSense:
     '''DeepSense Architecture for Q function approximation over Timeseries'''

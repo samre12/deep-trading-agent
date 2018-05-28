@@ -8,17 +8,19 @@ from argparse import ArgumentParser
 import gym
 import gym_cryptotrading
 
-from model.agent import Agent
+from agent.model.train import Agent
 
-from utils.config import get_config
-from utils.constants import *
-from utils.strings import *
-from utils.util import *
+from agent.utils.config import get_config
+from agent.utils.constants import *
+from agent.utils.strings import *
+from agent.utils.util import *
 
 def main(config_file_path):
     config_parser = get_config_parser(config_file_path)
     config = get_config(config_parser)
     logger = get_logger(config)
+
+    # Setting a lower debugging level for gym
     gym.logger.set_level(10)
 
     with tf.Session() as sess:

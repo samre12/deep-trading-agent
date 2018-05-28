@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from utils.constants import *
-from utils.strings import *
+from agent.utils.constants import *
+from agent.utils.strings import *
 
 class History:
     '''Experiance buffer of the behaniour policy of the agent'''

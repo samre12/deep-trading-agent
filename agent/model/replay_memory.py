@@ -4,10 +4,10 @@ import random
 import numpy as np
 from os.path import join
 
-from model.util import save_npy, load_npy
+from agent.model.util import save_npy, load_npy
 
-from utils.constants import *
-from utils.strings import *
+from agent.utils.constants import *
+from agent.utils.strings import *
 
 class ReplayMemory:
     '''Memory buffer for experiance replay'''

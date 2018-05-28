@@ -12,6 +12,23 @@ Deep Reinforcement Learning based Trading Agent for Bitcoin using [DeepSense](ht
 <br>
 For complete details of the input time series, network architecture and implementation, refer to the [Wiki](https://github.com/samre12/deep-trading-agent/wiki) of this repository.
 
+**Contents of this document**
+
+- [Requirements](#requirements)
+- [Run with Docker](#docker)
+- [Usage](#usage)
+- [ToDo](#todo)
+- [Trading Model](#model)
+- [Implemenation](#implementation)
+    - [Deep Sense](#deepsense)
+    - [Deep Q Trading](#deepqtrading)
+
+## Support
+
+Please give a :star: to this repository to support the project :smile:.
+
+<a name="requirements"></a>
+
 ## Requirements
 
 - Python 2.7
@@ -21,6 +38,8 @@ For complete details of the input time series, network architecture and implemen
 - [tqdm](https://pypi.python.org/pypi/tqdm) (for displaying progress of training)
 - [samre12/gym_cryptotrading](https://github.com/samre12/gym-cryptotrading/) (for different trading environments)
 
+<a name="docker"></a>
+
 ## Run with Docker
 
 Pull the prebuilt docker image directly from docker hub and run it as
@@ -29,6 +48,8 @@ Pull the prebuilt docker image directly from docker hub and run it as
 docker pull samre12/deep-trading-agent:latest
 docker run -p 6006:6006 -it samre12/deep-trading-agent:latest
 ```
+
+**Note:** Use docker image `samre12/deep-trading-agent:latest_dev` for the development (`dev`) branch of the repository.
 
 **OR**<br>
 
@@ -43,7 +64,7 @@ This will setup the repository for training the agent and
 
 - mount the current directory into `/deep-trading-agent` in the container
 
-- to initiate training of the agent, specify suitable parameters in a config file (an example config file is provided at `/deep-trading-agent/code/config/config.cfg`) and run the code using `/deep-trading-agent/code/main.py`
+- to initiate training of the agent, specify suitable parameters in a config file (an example config file is provided at `/deep-trading-agent/agent/config/config.cfg`) and run the code using `/deep-trading-agent/main.py`
 
 - training supports logging and monitoring through *Tensorboard*
 
@@ -51,9 +72,25 @@ This will setup the repository for training the agent and
 
 - bind port *6006* of container to *6006* of host machine to monitor training using *Tensorboard*
 
-## Support
+<a name="usage"></a>
 
-Please give a :star: to this repository to support the project :smile:.
+## Usage
+
+Having `cd` into the directory, execute the following command to train the model
+
+```bash
+python2 main.py --config=/path/to/config
+```
+
+To visualize learning using tensorboard, execute the following commands
+
+```bash
+# cd into tensorboard logging directory
+cd logs/tensorboard
+tensorboard --logdir=./ --host=0.0.0.0 --port=6006
+```
+
+<a name="todo"></a>
 
 ## ToDo
 
@@ -70,6 +107,8 @@ Please give a :star: to this repository to support the project :smile:.
 - [X] Use separate diff price blocks to calculate the unrealized PnL
 - [X] Use [exponentially decayed weighted unrealized PnL](https://github.com/samre12/deep-trading-agent/wiki/Reward-Function#exponentially-weighted-unrealized-pnl) as a reward function to incorporate current state of investment and stabilize the learning of the agent
 
+<a name="model"></a>
+
 ## Trading Model
 
 is inspired by [Deep Q-Trading](http://cslt.riit.tsinghua.edu.cn/mediawiki/images/5/5f/Dtq.pdf) where they solve a simplified trading problem for a single asset.
@@ -79,13 +118,19 @@ Current Deep Q-Trading model is modified by using the *Deep Sense* architecture 
 
 For more information on the trading model, refer [**here**](https://github.com/samre12/gym-cryptotrading/).
 
+<a name="implementation"></a>
+
 ## Implementation
 
 Tensorflow is used for the implementation of the **Deep Sense** network.
 
+<a name="deepsense"></a>
+
 ### Deep Sense
 
 Implementation is adapted from [this](https://github.com/yscacaca/DeepSense) Github repository with a few simplifications in the network architecture to incorporate learning over a single time series of the Bitcoin data.
+
+<a name="deepqtrading"></a>
 
 ### Deep Q Trading
 

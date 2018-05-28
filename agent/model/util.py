@@ -7,7 +7,7 @@ except:
 
 import tensorflow as tf
 
-from utils.strings import *
+from agent.utils.strings import *
 
 def clipped_error(x):
     # Huber loss

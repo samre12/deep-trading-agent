@@ -3,8 +3,8 @@ import json
 from os.path import join
 from ConfigParser import ConfigParser
 
-from utils.constants import *
-from utils.strings import *
+from agent.utils.constants import *
+from agent.utils.strings import *
 
 def add_parent_dir(parent_dir, path):
     return join(parent_dir, path)

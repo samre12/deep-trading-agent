@@ -1,4 +1,4 @@
-from utils.constants import *
+from agent.utils.constants import *
 
 class DropoutKeepProbs:
     '''Defines the keep probabilities for different dropout layers'''

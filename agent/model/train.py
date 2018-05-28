@@ -8,15 +8,15 @@ from tqdm import tqdm
 import tensorflow as tf
 import numpy as np
 
-from model.baseagent import BaseAgent
-from model.deepsense import DeepSense
-from model.deepsenseparams import DeepSenseParams, DropoutKeepProbs
-from model.history import History
-from model.replay_memory import ReplayMemory
-from model.util import clipped_error
+from agent.model.baseagent import BaseAgent
+from agent.model.deepsense import DeepSense
+from agent.model.deepsenseparams import DeepSenseParams, DropoutKeepProbs
+from agent.model.history import History
+from agent.model.replay_memory import ReplayMemory
+from agent.model.util import clipped_error
 
-from utils.constants import *
-from utils.strings import *
+from agent.utils.constants import *
+from agent.utils.strings import *
                         
 class Agent(BaseAgent):
     '''Deep Trading Agent based on Deep Q Learning'''

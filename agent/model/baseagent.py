@@ -4,8 +4,8 @@ import os
 
 import tensorflow as tf
 
-from utils.constants import *
-from utils.strings import *
+from agent.utils.constants import *
+from agent.utils.strings import *
 
 class BaseAgent(object):
     '''Base class containing all the parameters for reinforcement learning'''
