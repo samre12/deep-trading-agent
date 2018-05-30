@@ -48,6 +48,16 @@ class Agent(BaseAgent):
 
     def trade_rem_ratio(self, trade_rem):
         return (trade_rem / self.config[HORIZON])
+
+    def _adam_optimizer(self):
+        self.optimizer = tf.train.AdamOptimizer(
+            learning_rate=self.learninig_rate_op).minimize(self.loss)
+
+    def _rmsprop_optimizer(self):
+        self.optimizer = tf.train.RMSPropOptimizer(
+                    learning_rate=self.learning_rate_op, 
+                    momentum=0.95, 
+                    epsilon=0.01).minimize(self.loss)
     
     def train(self):
         start_step = self.sess.run(self.step_op)
@@ -302,8 +312,8 @@ class Agent(BaseAgent):
                         self.learning_rate_decay,
                         staircase=True))
 
-                self.optimizer = tf.train.RMSPropOptimizer(
-                    self.learning_rate_op, momentum=0.95, epsilon=0.01).minimize(self.loss)
+                # self._adam_optimizer()
+                self._rmsprop_optimizer()
 
         with tf.variable_scope(SUMMARY):
             scalar_summary_tags = ['average.reward', 'average.loss', 'average.q', \
