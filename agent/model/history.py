@@ -14,12 +14,11 @@ class History:
         batch_size, history_length, self.num_channels = \
             config[BATCH_SIZE], config[HISTORY_LENGTH], config[NUM_CHANNELS]
 
-        self.dims = (self.num_channels,)
         self._history = np.zeros(
             [history_length, self.num_channels], dtype=np.float32)
 
     def add(self, screen):
-        if screen.shape != self.dims:
+        if screen.shape != (self.num_channels, ):
             self.logger.error(INVALID_TIMESTEP)
             
         self._history[:-1] = self._history[1:]

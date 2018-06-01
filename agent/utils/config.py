@@ -27,6 +27,7 @@ def get_config(config_parser):
     config[MEMORY_SIZE] = int(config_parser.get(DATASET, MEMORY_SIZE))
     config[NUM_ACTIONS] = int(config_parser.get(DATASET, NUM_ACTIONS))
     config[NUM_CHANNELS] = int(config_parser.get(DATASET, NUM_CHANNELS))
+    config[NUM_SUPP_INPUT] = int(config_parser.get(DATASET, NUM_SUPP_INPUT))
     config[SPLIT_SIZE] = int(config_parser.get(DATASET, SPLIT_SIZE))
     config[WINDOW_SIZE] = int(config_parser.get(DATASET, WINDOW_SIZE))
 

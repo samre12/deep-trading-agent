@@ -89,13 +89,8 @@ class DeepSense:
                         name=name
                     )        
 
-    def build_model(self, state, reuse=False):
-        inputs = state[0]
-        trade_rem = state[1]
+    def build_model(self, inputs, supp, reuse=False):
         with tf.variable_scope(self.__name__, reuse=reuse):
-            with tf.name_scope(PHASE):
-                self.phase = tf.placeholder(dtype=tf.bool)
-
             with tf.variable_scope(INPUT_PARAMS, reuse=reuse):
                 self.batch_size = tf.shape(inputs)[0]
 
@@ -159,20 +154,23 @@ class DeepSense:
                 gru_cells.append(cell)
 
             multicell = tf.contrib.rnn.MultiRNNCell(gru_cells)
-            with tf.name_scope(DYNAMIC_UNROLLING):
+            with tf.variable_scope(DYNAMIC_UNROLLING):
                 output, final_state = tf.nn.dynamic_rnn(
                     cell=multicell,
                     inputs=inputs,
                     dtype=tf.float32
                 )
-            output = tf.unstack(output, axis=1)[-1]
+
+            with tf.name_scope(STATE_REPRESENTATION):
+                output = tf.unstack(output, axis=1)[-1]
             # self.debug3 = output
 
             ''' 
-            Append the information regarding the number of trades left in the episode
+            Append all the supplementary information provided by the environment
+            directly to the input of the fully connected layers of the q network
             '''
-            trade_rem = tf.expand_dims(trade_rem, axis=1)
-            output = tf.concat([output, trade_rem], axis=1)
+            with tf.variable_scope(CONCATENATE):
+                output = tf.concat([output, supp], axis=1)
 
             with tf.variable_scope(FULLY_CONNECTED, reuse=reuse):
                 num_dense_layers = len(self.params.dense_layer_sizes)

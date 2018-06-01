@@ -46,9 +46,6 @@ class Agent(BaseAgent):
     def summary_writer(self):
         return self._summary_writer
 
-    def trade_rem_ratio(self, trade_rem):
-        return (trade_rem / self.config[HORIZON])
-
     def _adam_optimizer(self):
         self.optimizer = tf.train.AdamOptimizer(
             learning_rate=self.learninig_rate_op).minimize(self.loss)
@@ -67,10 +64,9 @@ class Agent(BaseAgent):
         max_avg_ep_reward = 0
         ep_rewards, actions = [], []
 
-        trade_rem = 1.0
-        state = self.env.reset()
+        state, supplemetary = self.env.reset()
         self.history.set_history(state)
-        self.replay_memory.set_history(state)
+        self.replay_memory.set_history(state, supplemetary)
 
         for self.step in tqdm(range(start_step, self.max_step), ncols=70, initial=start_step):
             if self.step == self.learn_start:
@@ -79,20 +75,18 @@ class Agent(BaseAgent):
                 ep_rewards, actions = [], []
 
             # 1. predict
-            action = self.predict((self.history.history, trade_rem))
+            action = self.predict(self.history.history, supplemetary)
             # 2. act
-            screen, reward, terminal, rem = self.env.step(action)
-            trade_rem = self.trade_rem_ratio(rem)
+            screen, reward, terminal, supplemetary = self.env.step(action)
             # 3. observe
-            self.observe(screen, reward, action, terminal, trade_rem)
+            self.observe(screen, reward, action, terminal, supplemetary)
 
             ep_reward += reward
             
             if terminal:
-                trade_rem = 1.0
-                state = self.env.reset()
+                state, supplemetary = self.env.reset()
                 self.history.set_history(state)
-                self.replay_memory.set_history(state)
+                self.replay_memory.set_history(state, supplemetary)
                 
                 num_episodes += 1
                 ep_rewards.append(ep_reward)
@@ -153,9 +147,7 @@ class Agent(BaseAgent):
                     ep_rewards = []
                     actions = []
     
-    def predict(self, state, test_ep=None):
-        s_t = state[0]
-        trade_rem_t = state[1]
+    def predict(self, s_t, supp_t, test_ep=None):
         ep = test_ep or (self.ep_end +
             max(0., (self.ep_start - self.ep_end) \
             * (self.ep_end_t - max(0., self.step - self.learn_start)) / self.ep_end_t))
@@ -166,9 +158,8 @@ class Agent(BaseAgent):
             action = self.sess.run(
                 fetches=self.q.action,
                 feed_dict={
-                    self.q.phase: 0,  
                     self.s_t: [s_t], 
-                    self.trade_rem_t: [trade_rem_t],
+                    self.supp_t: [supp_t],
                     self.q_conv_keep_prob: 1.0,
                     self.q_dense_keep_prob: 1.0,
                     self.q_gru_keep_prob: 1.0
@@ -177,12 +168,12 @@ class Agent(BaseAgent):
 
         return action
 
-    def observe(self, screen, reward, action, terminal, trade_rem):
+    def observe(self, screen, reward, action, terminal, supplementary):
         #clip reward in the range min to max
         reward = max(self.min_reward, min(self.max_reward, reward))
         
         self.history.add(screen)
-        self.replay_memory.add(screen, reward, action, terminal, trade_rem)
+        self.replay_memory.add(screen, reward, action, terminal, supplementary)
 
         if self.step > self.learn_start:
             if self.step % self.train_frequency == 0:
@@ -194,15 +185,14 @@ class Agent(BaseAgent):
     def q_learning_mini_batch(self):
         if self.replay_memory.count >= self.replay_memory.history_length:
             state_t, action, reward, state_t_plus_1, terminal = self.replay_memory.sample
-            s_t, trade_rem_t = state_t[0], state_t[1]
-            s_t_plus_1, trade_rem_t_plus_1 = state_t_plus_1[0], state_t_plus_1[1]
+            s_t, supp_t = state_t[0], state_t[1]
+            s_t_plus_1, supp_t_plus_1 = state_t_plus_1[0], state_t_plus_1[1]
             
             q_t_plus_1 = self.sess.run(
                 fetches=self.t_q.values,
                 feed_dict={
-                    self.t_q.phase: 0, 
                     self.t_s_t: s_t_plus_1, 
-                    self.t_trade_rem_t: trade_rem_t_plus_1
+                    self.t_supp_t: supp_t_plus_1
                 }
             )
 
@@ -212,11 +202,10 @@ class Agent(BaseAgent):
             target_q = reward + (1 - terminal) * max_q_t_plus_1
 
             _, q_t, loss, avg_q_summary = self.sess.run([self.optimizer, self.q.values, self.loss, self.q.avg_q_summary], {
-                self.q.phase: 1,
                 self.target_q: target_q,
                 self.action: action,
                 self.s_t: s_t,
-                self.trade_rem_t: trade_rem_t,
+                self.supp_t: supp_t,
                 self.q_conv_keep_prob: self.config[CONV_KEEP_PROB],
                 self.q_dense_keep_prob: self.config[DENSE_KEEP_PROB],
                 self.q_gru_keep_prob: self.config[GRU_KEEP_PROB],
@@ -236,10 +225,10 @@ class Agent(BaseAgent):
                             self.replay_memory.num_channels],
                 name=HISTORICAL_PRICES
             )
-            self.trade_rem_t = tf.placeholder(
+            self.supp_t = tf.placeholder(
                 dtype=tf.float32,
-                shape=[None,],
-                name=TRADE_REM
+                shape=[None, self.config[NUM_SUPP_INPUT]],
+                name=SUPPLEMENTARY
             )
             
             with tf.variable_scope(DROPOUT_KEEP_PROBS):
@@ -253,7 +242,7 @@ class Agent(BaseAgent):
                     self.q_gru_keep_prob
                 )
         self.q = DeepSense(params, self.logger, self.sess, self.config, name=Q_NETWORK)
-        self.q.build_model((self.s_t, self.trade_rem_t))
+        self.q.build_model(self.s_t, self.supp_t)
 
         with tf.variable_scope(TARGET):
             self.t_s_t = tf.placeholder(
@@ -262,15 +251,15 @@ class Agent(BaseAgent):
                             self.replay_memory.num_channels],
                 name=HISTORICAL_PRICES
             )
-            self.t_trade_rem_t = tf.placeholder(
+            self.t_supp_t = tf.placeholder(
                 dtype=tf.float32,
-                shape=[None,],
-                name=TRADE_REM
+                shape=[None, self.config[NUM_SUPP_INPUT]],
+                name=SUPPLEMENTARY
             )
 
         params.dropoutkeepprobs = DropoutKeepProbs()
         self.t_q = DeepSense(params, self.logger, self.sess, self.config, name=T_Q_NETWORK)
-        self.t_q.build_model((self.t_s_t, self.t_trade_rem_t))
+        self.t_q.build_model(self.t_s_t, self.t_supp_t)
 
         with tf.variable_scope(UPDATE_TARGET_NETWORK):
             self.q_weights_placeholders = {}
@@ -297,9 +286,6 @@ class Agent(BaseAgent):
                                         
             with tf.variable_scope(LOSS):
                 self.delta = self.target_q - q_acted
-
-                self.global_step = tf.Variable(0, trainable=False)
-
                 self.loss = tf.reduce_mean(clipped_error(self.delta), name=LOSS)
 
             with tf.variable_scope(OPTIMIZER):

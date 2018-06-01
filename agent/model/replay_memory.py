@@ -21,27 +21,32 @@ class ReplayMemory:
         self.history_length = config[HISTORY_LENGTH]
         self.memory_size = config[MEMORY_SIZE]
         self.num_channels = config[NUM_CHANNELS]
-        self.dims = (self.num_channels,)
+        self.num_supp_input = config[NUM_SUPP_INPUT]
 
         self.actions = np.empty(self.memory_size, dtype = np.uint8)
         self.rewards = np.empty(self.memory_size, dtype = np.float32)
-        self.screens = np.empty((self.memory_size, config[NUM_CHANNELS]), dtype = np.float32)
+        self.screens = np.empty((self.memory_size, config[NUM_CHANNELS]), 
+                                    dtype = np.float32)
         self.terminals = np.empty(self.memory_size, dtype = np.bool)
-        self.trades_rem = np.empty(self.memory_size, dtype = np.float32)
+        self.supp = np.empty((self.memory_size, config[NUM_SUPP_INPUT]), 
+                                dtype = np.float32)
         
         # pre-allocate prestates and poststates for minibatch
-        self.prestates = (np.empty((self.batch_size, self.history_length, self.num_channels), 
+        self.prestates = [np.empty((self.batch_size, self.history_length, self.num_channels), 
                                         dtype = np.float32),\
-                                        np.empty(self.batch_size, dtype=np.float32))
-        self.poststates = (np.empty((self.batch_size, self.history_length, self.num_channels), 
+                                np.empty((self.batch_size, config[NUM_SUPP_INPUT]), 
+                                            dtype=np.float32)]
+        self.poststates = [np.empty((self.batch_size, self.history_length, self.num_channels), 
                                         dtype = np.float32),\
-                                        np.empty(self.batch_size, dtype=np.float32))
+                                np.empty((self.batch_size, config[NUM_SUPP_INPUT]), 
+                                                dtype=np.float32)]
         
         self.count = 0
         self.current = 0
 
-    def add(self, screen, reward, action, terminal, trade_rem):
-        if screen.shape != self.dims:
+    def add(self, screen, reward, action, terminal, supplementary):
+        if screen.shape != (self.num_channels, ) or \
+                supplementary.shape != (self.num_supp_input, ):
             self.logger.error(INVALID_TIMESTEP)
             
         else:
@@ -49,7 +54,7 @@ class ReplayMemory:
             self.rewards[self.current] = reward
             self.screens[self.current, ...] = screen
             self.terminals[self.current] = terminal
-            self.trades_rem[self.current] = trade_rem
+            self.supp[self.current] = supplementary
             self.count = max(self.count, self.current + 1)
             self.current = (self.current + 1) % self.memory_size
 
@@ -61,11 +66,11 @@ class ReplayMemory:
             index = index % self.count
             if index >= self.history_length - 1:
                 return self.screens[(index - (self.history_length - 1)):(index + 1), ...], \
-                        self.trades_rem[index]
+                        self.supp[index]
                         
             else:
                 indexes = [(index - i) % self.count for i in reversed(range(self.history_length))]
-                return self.screens[indexes, ...], self.trade_rem[index]
+                return self.screens[indexes, ...], self.supp[index]
 
     def save(self):
         message = "Saving replay memory to {}".format(self._model_dir)
@@ -90,9 +95,12 @@ class ReplayMemory:
         message = "Replay memory successfully loaded from {}".format(self._model_dir)
         self.logger.info(message)
 
-    def set_history(self, state):
-        for screen in state:
-            self.add(screen, 0.0, 0, False, 0.0)
+    def set_history(self, state, supp):
+        length = len(state)
+        for i in range(0, length - 1):
+            self.add(state[i], 0.0, 0, False, np.zeros(self.num_supp_input))
+        
+        self.add(state[length - 1], 0.0, 0, False, supp)
 
     @property
     def model_dir(self):
@@ -121,7 +129,7 @@ class ReplayMemory:
                     break
                 
                 # NB! having index first is fastest in C-order matrices
-                self.prestates[0][len(indexes), ...], self.prestates[0][len(indexes)] = self.getState(index - 1)
+                self.prestates[0][len(indexes), ...], self.prestates[1][len(indexes)] = self.getState(index - 1)
                 self.poststates[0][len(indexes), ...], self.poststates[1][len(indexes)] = self.getState(index)
                 indexes.append(index)
 

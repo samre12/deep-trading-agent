@@ -12,7 +12,10 @@ HISTORY_LENGTH =
 HORIZON = 
 MEMORY_SIZE = 
 NUM_ACTIONS = 
-NUM_CHANNELS = 
+NUM_CHANNELS =
+# Gives the number of additional inputs directly fed to fully connected layers
+# to supervise the learning process 
+NUM_SUPP_INPUT = 
 SPLIT_SIZE = 
 WINDOW_SIZE = 
 

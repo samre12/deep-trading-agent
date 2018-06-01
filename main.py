@@ -34,7 +34,7 @@ def main(config_file_path):
         env.env.set_logger(logger)
 
         agent = Agent(sess, logger, config, env)
-        agent.train()
+        # agent.train()
 
         agent.summary_writer.close()
 
