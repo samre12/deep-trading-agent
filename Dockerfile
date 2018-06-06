@@ -46,7 +46,7 @@ RUN pip --no-cache-dir install \
         numpy \
         pandas \
         scipy \
-        sklearn \
+        scikit-learn \
         TA-lib \
         tqdm 
 
