@@ -16,13 +16,13 @@ class BaseAgent(object):
         if not os.path.exists(self._checkpoint_dir):
             os.makedirs(self._checkpoint_dir)
 
-        scale = 5000 #value mentioned originally is 10000
+        scale = 10000 #value mentioned originally is 10000
 
         self.max_step = 5000 * scale
 
         self.target_q_update_step = 1 * scale
         self.learning_rate = 0.00025
-        self.learning_rate_minimum = 0.00025
+        self.learning_rate_minimum = 0.000025
         self.learning_rate_decay = 0.96
         self.learning_rate_decay_step = 5 * scale
 

@@ -19,7 +19,10 @@ class History:
 
     def add(self, screen):
         if screen.shape != (self.num_channels, ):
-            self.logger.error(INVALID_TIMESTEP)
+            self.logger.error(
+                'Invalid Timestep with shape {}'.format(screen.shape)
+            )
+            raise ValueError(INVALID_TIMESTEP)
             
         self._history[:-1] = self._history[1:]
         self._history[-1] = screen

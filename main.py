@@ -25,7 +25,7 @@ def main(config_file_path):
 
     with tf.Session() as sess:
         # Setup environment
-        env = gym.make('UnRealizedPnLEnv-v0')
+        env = gym.make('RealizedPnLEnv-v0')
         env.env.set_params(
             history_length=config[HISTORY_LENGTH],
             horizon=config[HORIZON],
@@ -34,7 +34,7 @@ def main(config_file_path):
         env.env.set_logger(logger)
 
         agent = Agent(sess, logger, config, env)
-        # agent.train()
+        agent.train()
 
         agent.summary_writer.close()
 

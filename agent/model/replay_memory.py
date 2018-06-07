@@ -47,7 +47,11 @@ class ReplayMemory:
     def add(self, screen, reward, action, terminal, supplementary):
         if screen.shape != (self.num_channels, ) or \
                 supplementary.shape != (self.num_supp_input, ):
-            self.logger.error(INVALID_TIMESTEP)
+            self.logger.error(
+                'Invalid Timestep with shapes {}, {}'.format(screen.shape, 
+                                                                supplementary.shape)
+            )
+            raise ValueError(INVALID_TIMESTEP)
             
         else:
             self.actions[self.current] = action
@@ -61,6 +65,7 @@ class ReplayMemory:
     def getState(self, index):
         if self.count == 0:
             self.logger.error(REPLAY_MEMORY_ZERO)
+            raise RuntimeError(REPLAY_MEMORY_ZERO)
             
         else:
             index = index % self.count
@@ -109,7 +114,12 @@ class ReplayMemory:
     @property
     def sample(self):
         if self.count <= self.history_length:
-            self.logger.error(REPLAY_MEMORY_INSUFFICIENT)
+            self.logger.error(
+                'Replay memory is insufficient: found {}, minimum expected {}'.format(
+                    self.count, self.history_length
+                )
+            )
+            raise RuntimeError(REPLAY_MEMORY_INSUFFICIENT)
         
         else:
             indexes = []

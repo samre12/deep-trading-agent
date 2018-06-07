@@ -3,6 +3,7 @@ from os.path import join
 import tensorflow as tf
 
 from agent.model.deepsenseparams import DeepSenseParams
+from agent.model.normalization import adaptive_normalization
 
 from agent.utils.constants import *
 from agent.utils.strings import *
@@ -93,6 +94,9 @@ class DeepSense:
         with tf.variable_scope(self.__name__, reuse=reuse):
             with tf.variable_scope(INPUT_PARAMS, reuse=reuse):
                 self.batch_size = tf.shape(inputs)[0]
+
+            inputs = adaptive_normalization(inputs)
+            supp = adaptive_normalization(supp)
 
             inputs = tf.reshape(inputs, 
                         shape=[self.batch_size, 
